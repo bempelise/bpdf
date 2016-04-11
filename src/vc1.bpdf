@@ -1,0 +1,115 @@
+actor ("VLD")
+actor ("SMB")
+actor ("MBB")
+actor ("PRED")
+actor ("ACDC")
+actor ("IZZ")
+actor ("IQIT")
+actor ("SMOOTH")
+actor ("MVPRED")
+actor ("PREF")
+actor ("MCOMP")
+actor ("ADD")
+actor ("OUTPUT")
+
+//VLD
+// connect("VLD","q","SMB","q")
+connect("VLD","p*q","SMB","q")
+
+
+// SMB
+connect("SMB","q","MBB",1)
+
+connect("SMB","q","MVPRED","q")
+setGuard("SMB","MVPRED","b")
+
+// MBB
+connect("MBB",1,"IZZ",1)
+setGuard("MBB","IZZ","a&b")
+
+connect("MBB",1,"PRED",1)
+setGuard("MBB","PRED","a&!b")
+
+connect("MBB",1,"ADD","q")
+setGuard("MBB","ADD","!a")
+
+// PRED
+connect("PRED",1,"IZZ",1)
+setGuard("PRED","IZZ","a&!b")
+
+// IZZ (FEEDBACK)
+// Graph no live as it requires clustering
+// To be fixed
+connectTokens("IZZ",1,"ACDC",1)
+{
+    tokens("1")
+}
+
+connect("IZZ",1,"IQIT",1)
+setGuard("IZZ","IQIT","a&c")
+
+connect("IZZ",1,"SMOOTH",1)
+setGuard("IZZ","SMOOTH","a&!c")
+
+// ACDC
+connect("ACDC",1,"PRED",1)
+setGuard("ACDC","PRED","a&!b")
+
+connect("ACDC",1,"IZZ",1)
+setGuard("ACDC","IZZ","a&b")
+
+// IQIT
+connect("IQIT",1,"SMOOTH",1)
+setGuard("IQIT","SMOOTH","a&c")
+
+// SMOOTH
+connect("SMOOTH",1,"ADD","q")
+setGuard("SMOOTH","ADD","a")
+
+// MVPRED
+connect("MVPRED","q","PREF","q")
+setGuard("MVPRED","PREF","b")
+
+connect("MVPRED","q","MCOMP","q")
+setGuard("MVPRED","MCOMP","b")
+
+// PREF
+connect("PREF","q","MCOMP","q")
+setGuard("PREF","MCOMP","b")
+
+// MCOMP
+connect("MCOMP","q","ADD","q")
+setGuard("MCOMP","ADD","b")
+
+// ADD
+// connect("ADD","q","OUTPUT","q")
+connect("ADD","q","OUTPUT","p*q")
+
+setModifier("MBB","a","q")
+setModifier("SMB","b","1")
+setModifier("MBB","c","1")
+
+// Timing
+
+//VLD 7400
+timing ("VLD",7000)
+timing ("SMB",200)
+timing ("MBB",200)
+
+// Intra 2300
+timing ("PRED",800)
+timing ("ACDC",500)
+timing ("IZZ",1000)
+
+//IDCT Reconstruction 2919
+timing ("IQIT",1800)
+timing ("SMOOTH",1119)
+
+// Motion Compensation 1937*8 = 15496 (q=8)
+timing ("MVPRED",5000)
+timing ("PREF",496)
+timing ("MCOMP",10000)
+
+// Loop Filter 4074
+timing ("ADD",74)
+timing ("OUTPUT",4000)

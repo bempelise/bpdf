@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<project name="bpdf" basedir="." default="run">
+
+    <property environment="env"/>
+    <property name="src.dir"     value="src"/>
+    <property name="build.dir"   value="build"/>
+    <property name="lib.dir"     value="lib"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="jar.dir"     value="${build.dir}/jar"/>
+    <property name="main-class"  value="inria.bpdf.graph.BPDFMain"/>
+
+    <path id="groovy.classpath">
+        <fileset dir="${env.GROOVY_HOME}/embeddable" />
+        <pathelement location="${classes.dir}"/>
+    </path>
+
+    <taskdef 
+        name="groovyc"
+        classname="org.codehaus.groovy.ant.Groovyc"
+        classpathref="groovy.classpath"
+    />
+
+    <!--Clean-->
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <!--Compile-->
+    <target name="compile">
+        <mkdir dir="${classes.dir}"/>
+
+        <groovyc
+            destdir="${classes.dir}"
+            srcdir="${src.dir}"
+            classpathref="groovy.classpath">
+        </groovyc>
+
+        <javac 
+            destdir="${classes.dir}"
+            srcdir="${src.dir}" >
+        </javac>
+    </target>
+
+    <!--Jar-->
+    <target name="jar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <jar 
+            destfile="${jar.dir}/${ant.project.name}.jar"
+            basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main-class}"/>
+            </manifest>
+        </jar>
+    </target>
+
+<!-- Executable jar
+    <jar destfile="${jar.dir}/${ant.project.name}.jar"
+            basedir="${classes.dir}">
+        <fileset dir="build/main/classes"/>
+        <zipfileset includes="**/*.class" src="lib/main/some.jar"/>
+        <manifest>
+          <attribute name="Main-Class"
+                value="com.acme.checksites.Main"/>
+        </manifest>
+    </jar>
+ -->
+
+    <!--Run Parser-->
+    <target name="run" depends="jar">
+        <java classname="inria.bpdf.graph.BPDFMain">
+            <classpath refid="groovy.classpath"/>
+            <classpath location="classes"/>
+        </java>
+    </target>
+
+
+    <!--Run Symbol-->
+    <target name="run-symbol" depends="jar">
+        <java classname="inria.bpdf.symbol.SymbolTest">
+            <classpath refid="groovy.classpath"/>
+            <classpath location="classes"/>
+        </java>
+    </target>
+
+<!-- 
+    <target name="run" depends="jar">
+        <java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
+    </target> 
+-->
+
+    <!--Clean Build-->
+    <target name="clean-build" depends="clean,jar"/>
+
+    <!--Clean Run-->
+    <target name="main" depends="clean,run"/>
+
+<!--
+    <javadoc packagenames="com.dummy.test.*"
+        sourcepath="src"
+        excludepackagenames="com.dummy.test.doc-files.*"
+        defaultexcludes="yes"
+        destdir="docs/api"
+        author="true"
+        version="true"
+        use="true"
+        windowtitle="Test API">
+    <doctitle><![CDATA[<h1>Test</h1>]]></doctitle>
+    <bottom><![CDATA[<i>Copyright &#169; 2000 Dummy Corp. All Rights Reserved.</i>]]></bottom>S
+    <tag name="todo" scope="all" description="To do:"/>
+    <group title="Group 1 Packages" packages="com.dummy.test.a*"/>
+    <group title="Group 2 Packages" packages="com.dummy.test.b*:com.dummy.test.c*"/>
+    <link offline="true" href="http://docs.oracle.com/javase/7/docs/api/" packagelistLoc="C:\tmp"/>
+    <link href="http://docs.oracle.com/javase/7/docs/api/"/>
+    </javadoc> 
+-->
+
+
+</project>

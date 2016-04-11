@@ -1,0 +1,9 @@
+
+Avg. Van Sl / Non-Sl: 	1.677339795420406
+Avg. Opt Sl / Non-Sl: 	1.4244667821294283
+Avg. Van / Opt:    		1.177521172457918
+Avg. Van / L.Buff: 		0.9729001839862559
+Avg. Van Sl:       			701175.0
+Avg. Non-Sl:       			418028.0
+Avg. Opt Sl:       			595467.0
+Avg. LBuff:        			720706.0

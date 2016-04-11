@@ -1,0 +1,24 @@
+actor ("A")
+actor ("B")
+actor ("C")
+actor ("D")
+actor ("E")
+
+connect("A","2*p","B",1)
+connect("B",1,"C",2)
+connect("B",1,"D",1)
+connect("C",2,"E",1)
+connect("D",1,"E",1)
+
+// boolean
+setModifier("B","b","2")
+setGuard("B","C","b")
+setGuard("C","E","b")
+setGuard("B","D","!b")
+
+// Timing
+timing("A",10);
+timing("B",3);
+timing("C",5);
+timing("D",2);
+timing("E",1);

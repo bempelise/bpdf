@@ -1,0 +1,46 @@
+actor("VLD");
+actor("SMB");
+actor("MBB");
+actor("INTRA");
+actor("IQIT");
+actor("MC");
+actor("LOOP");
+
+//VLD
+connect("VLD","p*q","SMB","q");
+
+// SMB
+connect("SMB","q","MBB",1);
+
+connect("SMB","q","MC","q");
+setGuard("SMB","MC","b");
+
+// MBB
+connect("MBB",1,"INTRA",1);
+setGuard("MBB","INTRA","a");
+
+connect("MBB",1,"LOOP","q");
+setGuard("MBB","LOOP","!a");
+
+// INTRA
+connect("INTRA",1,"IQIT",1);
+setGuard("INTRA","IQIT","a");
+
+// IQIT
+connect("IQIT",1,"LOOP","q");
+setGuard("IQIT","LOOP","a");
+
+// MC
+connect("MC","q","LOOP","q");
+setGuard("MC","LOOP","b");
+
+setModifier("MBB","a","q");
+setModifier("SMB","b","1");
+
+timing("VLD",7400); 
+timing("SMB",10);
+timing("MBB",10);
+timing("INTRA",288); // 2300/8
+timing("IQIT",365); // 2919/8
+timing("MC",1937);
+timing("LOOP",4074);

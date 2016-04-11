@@ -1,0 +1,18 @@
+{
+    "folders" :
+    [
+        {
+            "path": "src",
+            "name": "src",
+            "folder_exclude_patterns": [".gradle","build","results"],
+            "file_exclude_patterns": ["*.txt","Apache License*"]
+        },
+        {
+            "path": ".",
+            "name": "root",
+            "folder_exclude_patterns": ["src",".gradle"]
+        }
+    ]
+
+}
+

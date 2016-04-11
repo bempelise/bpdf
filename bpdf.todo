@@ -1,0 +1,29 @@
+-2 General
+        -2 Use proper exception system
+        -2 Comments on the new code
+        -2 Try to remove the silly map usage
+        
+-3 BPDF Implementation
+        -2 Complete liveness check
+                -3 Clustering mechanism
+                -3 False cycle detection
+        -2 Cycle detector producing cycles with extra edges
+        -2 Remove the boolean hacks from the edges
+
+-3 Symbol library and boolean expressions
+        -2 Reconsider comparison e.g.(what happens with 2*p > 3?)
+        - (Correct) Hierarchy when resolving boolean expressions
+        -2 Modify product evaluate function to change stuff like from i to i+1
+                This is much trickier than it seems. A feature to be added if the redesign with
+                the stack exchange answer is used
+
+-4 Constraint framework
+        -3 Resource constraint implementation
+        -3 Liveness checking
+        -2 Constraint simplification & quasi-static schedule production
+
+-4 Execution & Usage
+        -3 User friendly loading of files (e.g. from the console)
+        -3 New files that will include exact (or random) values for both integer and boolean parameters
+                -2 Maybe a generator for the above files?
+                

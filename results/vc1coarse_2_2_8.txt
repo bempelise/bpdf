@@ -1,0 +1,45 @@
+
+Avg. Van Sl / Non-Sl: 	1.1181480422977994
+Avg. Opt Sl / Non-Sl: 	1.0080022863675335
+Avg. Van / Opt:    		1.1092713354125319
+Avg. Van / L.Buff: 		1.0
+Avg. Van Sl:       			19562.0
+Avg. Non-Sl:       			17495.0
+Avg. Opt Sl:       			17635.0
+Avg. LBuff:        			19562.0
+
+Avg. Van Sl / Non-Sl: 	1.091020451640392
+Avg. Opt Sl / Non-Sl: 	1.0031955688112484
+Avg. Van / Opt:    		1.0875451263537905
+Avg. Van / L.Buff: 		0.9866107980542311
+Avg. Van Sl:       			20485.0
+Avg. Non-Sl:       			18776.0
+Avg. Opt Sl:       			18836.0
+Avg. LBuff:        			20763.0
+
+Avg. Van Sl / Non-Sl: 	1.1360779718789944
+Avg. Opt Sl / Non-Sl: 	1.1360779718789944
+Avg. Van / Opt:    		1.0
+Avg. Van / L.Buff: 		1.0
+Avg. Van Sl:       			21331.0
+Avg. Non-Sl:       			18776.0
+Avg. Opt Sl:       			21331.0
+Avg. LBuff:        			21331.0
+
+Avg. Van Sl / Non-Sl: 	1.2387089902002557
+Avg. Opt Sl / Non-Sl: 	1.2387089902002557
+Avg. Van / Opt:    		1.0
+Avg. Van / L.Buff: 		1.0
+Avg. Van Sl:       			23258.0
+Avg. Non-Sl:       			18776.0
+Avg. Opt Sl:       			23258.0
+Avg. LBuff:        			23258.0
+
+Avg. Van Sl / Non-Sl: 	1.1936514699616532
+Avg. Opt Sl / Non-Sl: 	1.1058265871325097
+Avg. Van / Opt:    		1.0794201223329962
+Avg. Van / L.Buff: 		0.9877479065667695
+Avg. Van Sl:       			22412.0
+Avg. Non-Sl:       			18776.0
+Avg. Opt Sl:       			20763.0
+Avg. LBuff:        			22690.0
