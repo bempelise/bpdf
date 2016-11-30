@@ -4,7 +4,7 @@ apply plugin: 'application'
 // Uncomment the line below if you get a verification error
 // applicationDefaultJvmArgs = ["-noverify"]
 mainClassName = 'bpdf.graph.BPDFMain'
-buildDir = '../_build'
+buildDir = './build'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 version = '0.1.0'
