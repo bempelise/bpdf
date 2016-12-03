@@ -12,7 +12,22 @@
             "name": "root",
             "folder_exclude_patterns": ["src",".gradle"]
         }
-    ]
+    ],
+    "SublimeLinter":
+        {
+            "linters":
+            {
+                "javac": {
+                    "lint": "all",
+                    "args": [
+                        "-encoding", "UTF8",
+                        "-cp", "${project}/build/resources/main/jgraphx.jar",
+                        "-sourcepath", "${project}/src/main/java",
+                        "-d", "${project}/build/tmp/compileJava"
+                    ]
+                }
+            }
+        }
 
 }
 
