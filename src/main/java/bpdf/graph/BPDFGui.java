@@ -59,7 +59,7 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.layout.mxCompactTreeLayout;
 
 public class BPDFGui extends JFrame implements ActionListener
-{   
+{
     // gui
     private static final long serialVersionUID = 1568196732681655874L;
     // menu
@@ -78,7 +78,7 @@ public class BPDFGui extends JFrame implements ActionListener
     private Dimension minimumSize = new Dimension(10, 10);
     private int sched = 0;
     private File currentFile;
-    
+
     // content
     private BPDFGraph funcGraph = new BPDFGraph();
     private mxGraph visGraph = new mxGraph();
@@ -89,7 +89,7 @@ public class BPDFGui extends JFrame implements ActionListener
     BPDFGui()
     {
         super("Boolean Parametric Data Flow");
-        
+
         // Integer Parameter Panel
         intPanel = new JPanel();
         intPanel.setBorder(
@@ -111,11 +111,11 @@ public class BPDFGui extends JFrame implements ActionListener
         // Run Button
         run.setActionCommand("run");
         run.addActionListener(this);
-        
+
         // Left panel
         leftPanel = new JPanel();
         leftPanel.setMinimumSize(minimumSize);
-        
+
         // Right panel
         rightPanel = new JPanel();
         rightPanel.setMinimumSize(minimumSize);
@@ -157,7 +157,7 @@ public class BPDFGui extends JFrame implements ActionListener
  ** GUI MAKERS
  *******************************************************************/
 
-    private JMenuItem makeMenuItem (String name) 
+    private JMenuItem makeMenuItem (String name)
     {
         JMenuItem m = new JMenuItem (name);
         m.addActionListener (this);
@@ -181,7 +181,7 @@ public class BPDFGui extends JFrame implements ActionListener
     {
         panel.removeAll();
 
-        if (set.size() == 0) 
+        if (set.size() == 0)
             panel = makeEmptyPanel(panel);
         else
         {
@@ -203,15 +203,15 @@ public class BPDFGui extends JFrame implements ActionListener
                 text.getDocument().addDocumentListener(
                     new DocumentListener()
                 {
-                    public void changedUpdate(DocumentEvent e) 
+                    public void changedUpdate(DocumentEvent e)
                     {
                         // updateInteger(e,text);
                     }
-                    public void removeUpdate(DocumentEvent e) 
+                    public void removeUpdate(DocumentEvent e)
                     {
                         updateInteger(e,text);
                     }
-                    public void insertUpdate(DocumentEvent e) 
+                    public void insertUpdate(DocumentEvent e)
                     {
                         updateInteger(e,text);
                     }
@@ -233,7 +233,7 @@ public class BPDFGui extends JFrame implements ActionListener
     {
         panel.removeAll();
 
-        if (set.size() == 0) 
+        if (set.size() == 0)
             panel = makeEmptyPanel(panel);
         else
         {
@@ -255,15 +255,15 @@ public class BPDFGui extends JFrame implements ActionListener
                 text.getDocument().addDocumentListener(
                     new DocumentListener()
                 {
-                    public void changedUpdate(DocumentEvent e) 
+                    public void changedUpdate(DocumentEvent e)
                     {
                         // updateBoolean(e,text);
                     }
-                    public void removeUpdate(DocumentEvent e) 
+                    public void removeUpdate(DocumentEvent e)
                     {
                         updateBoolean(e,text);
                     }
-                    public void insertUpdate(DocumentEvent e) 
+                    public void insertUpdate(DocumentEvent e)
                     {
                         updateBoolean(e,text);
                     }
@@ -316,7 +316,7 @@ public class BPDFGui extends JFrame implements ActionListener
     {
         visGraph = new mxGraph();
         funcGraph = new BPDFGraph(file);
-        
+
         funcGraph.verifyGraph();
         Object parent = visGraph.getDefaultParent();
 
@@ -328,23 +328,19 @@ public class BPDFGui extends JFrame implements ActionListener
             List<BPDFActor> actorList = funcGraph.getActors();
             for (BPDFActor actor : actorList)
             {
-                Object v = visGraph.insertVertex(parent, 
-                    actor.getName(),actor.getName(), 
-                    10, 10, 80, 30);
+                Object v = visGraph.insertVertex(parent, actor.getName(),actor.getName(), 10, 10, 80, 30);
                 nodes.add((mxCell) v);
             }
 
             List<BPDFEdge> edgeList = funcGraph.getEdges();
             for (BPDFEdge edge : edgeList)
             {
-                Object v1 = findNode(
-                    edge.getProducer().getName(),nodes);
-                Object v2 = findNode(
-                    edge.getConsumer().getName(),nodes);
+                Object v1 = findNode(edge.getProducer().getName(),nodes);
+                Object v2 = findNode(edge.getConsumer().getName(),nodes);
                 visGraph.insertEdge(parent,edge.getName(),"",v1,v2);
             }
 
-            mxCompactTreeLayout layout 
+            mxCompactTreeLayout layout
                 = new mxCompactTreeLayout(visGraph, false);
             layout.execute(visGraph.getDefaultParent());
         }
@@ -352,8 +348,8 @@ public class BPDFGui extends JFrame implements ActionListener
         {
             visGraph.getModel().endUpdate();
         }
-        
-        mxGraphComponent graphComponent 
+
+        mxGraphComponent graphComponent
             = new mxGraphComponent(visGraph);
         leftPanel.removeAll();
         leftPanel.add(graphComponent);
@@ -383,7 +379,7 @@ public class BPDFGui extends JFrame implements ActionListener
 
     private boolean consCheck(boolean msg)
     {
-        if (!funcGraph.isConsistent()) 
+        if (!funcGraph.isConsistent())
         {
             JOptionPane.showMessageDialog(((JFrame) this),
             "Graph is inconsistent.",
@@ -403,7 +399,7 @@ public class BPDFGui extends JFrame implements ActionListener
 
     private boolean boundCheck(boolean msg)
     {
-        if (!funcGraph.isSafe()) 
+        if (!funcGraph.isSafe())
         {
             JOptionPane.showMessageDialog(((JFrame) this),
             "Graph is not safe.",
@@ -441,14 +437,14 @@ public class BPDFGui extends JFrame implements ActionListener
         return true;
     }
 
-    private void updateInteger(DocumentEvent event, JTextField text) 
+    private void updateInteger(DocumentEvent event, JTextField text)
     {
         if (text.getText().length() > 0)
         {
-            try 
+            try
             {
                 int value = Integer.parseInt(text.getText());
-                String param = (String) 
+                String param = (String)
                     event.getDocument().getProperty("param");
                 intMap.put(param,value);
             }
@@ -465,14 +461,14 @@ public class BPDFGui extends JFrame implements ActionListener
     private void updateBoolean(DocumentEvent event, JTextField text)
     {
         String value = text.getText();
-        String param = (String) 
+        String param = (String)
             event.getDocument().getProperty("param");
-        
-        if (text.getText().length() > 0) 
+
+        if (text.getText().length() > 0)
         {
             // if (value.charAt(0)=='*')
             //     boolMap.put(param,"*");
-            // else 
+            // else
             if (value.matches("[*01]+"))
                 boolMap.put(param,value);
             else
@@ -488,13 +484,13 @@ public class BPDFGui extends JFrame implements ActionListener
 /********************************************************************
  ** ACTION LISTENER
  ********************************************************************/
-    
+
     public void actionPerformed (ActionEvent e)
     {
         boolean status = false;
         String command = e.getActionCommand();
         // Menu Bar "File"
-        if (command.equals("Open")) 
+        if (command.equals("Open"))
         {
             currentFile = openFile();
             if (currentFile != null) makeGraph(currentFile);
@@ -549,7 +545,7 @@ public class BPDFGui extends JFrame implements ActionListener
                 BPDFGraph runGraph = new BPDFGraph(currentFile);
                 runGraph.verifyGraph();
 
-                if (sched == 0) 
+                if (sched == 0)
                     scheduler = new SlottedScheduler(
                         runGraph,intMap,boolMap);
                 else
@@ -568,31 +564,25 @@ public class BPDFGui extends JFrame implements ActionListener
  ** FILE ACTIONS
  ***********************************************************************/
 
-    private File openFile() 
+    private File openFile()
     {
         File file = null;
         JFileChooser fileChooser = new JFileChooser();
-        
-        FileFilter filter = 
-            new FileNameExtensionFilter("BPDF Graph","bpdf");
+        FileFilter filter = new FileNameExtensionFilter("BPDF Graph","bpdf");
         // Makes all files default
         // fileChooser.addChoosableFileFilter(filter);
         // Makes .bpdf files default
         fileChooser.setFileFilter(filter);
-
         fileChooser.setDialogTitle("Open File");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setCurrentDirectory(new File ("."));
         int result = fileChooser.showOpenDialog(this);
 
-        if (result == JFileChooser.CANCEL_OPTION) 
-        {
+        if (result == JFileChooser.CANCEL_OPTION){
             return file;
-        } 
-        else if (result == JFileChooser.APPROVE_OPTION) 
+        } else if (result == JFileChooser.APPROVE_OPTION){
             file = fileChooser.getSelectedFile();
-        else
-        {
+        } else {
             JOptionPane.showMessageDialog(null,
                 "IO error in saving file.", "File Save Error",
                 JOptionPane.ERROR_MESSAGE);
@@ -601,8 +591,7 @@ public class BPDFGui extends JFrame implements ActionListener
         return file;
     }
 
-    private void saveFile()
-    {
+    private void saveFile() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save File");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -610,17 +599,17 @@ public class BPDFGui extends JFrame implements ActionListener
         // fileChooser.setSelectedFile(file);
         int result = fileChooser.showSaveDialog (this);
 
-        if (result == JFileChooser.CANCEL_OPTION) 
+        if (result == JFileChooser.CANCEL_OPTION)
             return;
-        else if (result == JFileChooser.APPROVE_OPTION) 
+        else if (result == JFileChooser.APPROVE_OPTION)
         {
             File file = fileChooser.getSelectedFile();
-            if (file.exists()) 
+            if (file.exists())
             {
                 int response = JOptionPane.showConfirmDialog (null,
                     "Overwrite existing file?","Confirm Overwrite",
                     JOptionPane.OK_CANCEL_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);  
+                    JOptionPane.QUESTION_MESSAGE);
                 if (response == JOptionPane.CANCEL_OPTION)
                     return;
             }
@@ -631,87 +620,24 @@ public class BPDFGui extends JFrame implements ActionListener
         }
     }
 
-    private void printOptions()
-    {
+    private void printOptions() {
         Set<String> intParams = intMap.keySet();
-        
-        for (String s : intParams)
-        {
-            System.out.println(
-                "Integer " + s + " set to " + intMap.get(s));
+
+        for (String s : intParams) {
+            System.out.println("Integer " + s + " set to " + intMap.get(s));
         }
 
         Set<String> boolParams = boolMap.keySet();
-        
-        for (String s : boolParams)
-        {
-            System.out.println(
-                "Boolean " + s + " set to " + boolMap.get(s));
+
+        for (String s : boolParams) {
+            System.out.println("Boolean " + s + " set to " + boolMap.get(s));
         }
 
-        if (sched == 0)
-            System.out.println("Using a Slotted Scheduler");
-        else
-            System.out.println("Using a Non-Slotted Scheduler");
+        if (sched == 0) System.out.println("Using a Slotted Scheduler");
+        else            System.out.println("Using a Non-Slotted Scheduler");
     }
 }
 
 
 
 
-
-
-/** RADIO BUTTON IMPLEMENTATION */
-/*
-JPanel paramPanel = new JPanel(new SpringLayout());
-
-JRadioButton randButton = new JRadioButton("Random");
-randButton.setActionCommand("bool" + s);
-randButton.setSelected(true);
-randButton.setMaximumSize(randButton.getPreferredSize());
-randButton.addActionListener(this);
-
-JTextField invisiText = new JTextField("",10);
-invisiText.setVisible(false);
-invisiText.setMaximumSize(invisiText.getPreferredSize());
-
-JRadioButton fixButton = new JRadioButton("Fixed");
-fixButton.setActionCommand("Fixed");
-fixButton.setMaximumSize(fixButton.getPreferredSize());
-fixButton.addActionListener(this);
-
-//[...]
-
-ButtonGroup group = new ButtonGroup();
-group.add(randButton);
-group.add(fixButton);
-
-paramPanel.add(randButton);
-paramPanel.add(invisiText);
-paramPanel.add(fixButton);
-paramPanel.add(text);
-
-SpringUtilities.makeCompactGrid(paramPanel,
-    2, 2,      // rows, cols
-    5, 5,      // initX, initY
-    5, 5);     // xPad, yPad
-
-panel.add(paramPanel);
-*/
-
-
-/** ENABLE COMPONENTS*/
-/*
-public void enableComponents(Container container, boolean enable) 
-{
-    Component[] components = container.getComponents();
-    for (Component component : components) 
-    {
-        component.setEnabled(enable);
-        if (component instanceof Container) 
-        {
-            enableComponents((Container)component, enable);
-        }
-    }
-}
-*/

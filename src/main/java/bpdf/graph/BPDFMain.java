@@ -35,10 +35,9 @@ public class BPDFMain {
                 gui.setVisible (true);
             }
         } catch (ParseException exc) {
-            System.err.println("Invalid arguments");
+            System.err.println("Invalid arguments: " + exc);
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("BPDF", options);
         }
-
     }
 }
