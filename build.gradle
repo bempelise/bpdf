@@ -3,7 +3,7 @@ apply plugin: 'application'
 
 // Uncomment the line below if you get a verification error
 // applicationDefaultJvmArgs = ["-noverify"]
-mainClassName = 'bpdf.graph.BPDFMain'
+mainClassName = 'bpdf.BpdfLauncher'
 buildDir = './build'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -62,7 +62,7 @@ jar {
     manifest {
         attributes  'Implementation-Title': project.name,
                     'Implementation-Version': version,
-                    'Main-Class': 'bpdf.graph.BPDFMain'
+                    'Main-Class': mainClassName
     }
     // to include library dependencies in the jar
     from {
