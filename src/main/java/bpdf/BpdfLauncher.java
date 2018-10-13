@@ -1,23 +1,42 @@
 package bpdf;
 
 import bpdf.graph.BPDFGui;
-
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.Option;
+import java.io.IOException;
+import java.util.Date;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
 
 public class BpdfLauncher {
+    private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
     public static void main(String[] args) {
-        // Create options
+        try {
+            BpdfLogger.setup();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Logger initilization error");
+        }
+
+        BpdfStatus status = new BpdfStatus();
         Options options = new Options();
-        Option help = new Option("h", "help", false, "Help");
+        Option help = new Option("h", "help", false, "help");
         Option gui = new Option("g", "gui", false, "Enable GUI");
         Option loadgraph = Option.builder("l").hasArg()
-                                              .argName( "filename" )
+                                              .argName("filename")
                                               .longOpt("load")
                                               .desc("load graph from file")
                                               .build();
@@ -35,18 +54,19 @@ public class BpdfLauncher {
                 formatter.printHelp("BPDF", options);
                 System.exit(0);
             } else if(cmd.hasOption("g")) {
+                LOGGER.info("Launching GUI");
                 // Launch the GUI
                 BPDFGui bpdfgui = new BPDFGui();
             } else if(cmd.hasOption("l")) {
-                String path = cmd.getOptionValues("l")[0];
-                System.out.println("Running graph at " + path);
-            } else {
+                status.path = cmd.getOptionValue("l");
             }
         } catch (ParseException exc) {
-            System.err.println("Invalid arguments: " + exc);
+            LOGGER.warning("Invalid arguments: " + exc);
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("BPDF", options);
             System.exit(1);
         }
+        LOGGER.info("Launching Manager");
+        BpdfManager manager = new BpdfManager(status);
     }
 }

@@ -86,7 +86,7 @@ public class BPDFGui extends JFrame implements ActionListener
     private Map<String,String> boolMap = new HashMap<String,String>();
     private Scheduler scheduler = new SlottedScheduler();
 
-    BPDFGui()
+    public BPDFGui()
     {
         super("Boolean Parametric Data Flow");
 
@@ -151,6 +151,11 @@ public class BPDFGui extends JFrame implements ActionListener
         menuBar.add(fileMenu);
         menuBar.add(analysisMenu);
         setJMenuBar (menuBar);
+
+        // Make initialize and visible
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setSize(600,600);
+        setVisible(true);
     }
 
 /*******************************************************************
