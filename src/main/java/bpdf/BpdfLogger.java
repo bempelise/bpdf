@@ -24,17 +24,15 @@ public class BpdfLogger {
 
             @Override
             public String format(LogRecord arg0) {
-                StringBuilder b = new StringBuilder();
-                b.append("[");
-                b.append(arg0.getLevel());
-                b.append("] ");
-                b.append(arg0.getSourceMethodName());
-                b.append(": ");
-                b.append(arg0.getMessage());
-                b.append(System.getProperty("line.separator"));
-                return b.toString();
+                StringBuilder strb = new StringBuilder();
+                String msg = String.format("[%-7s] %-20s: %s",
+                                           arg0.getLevel(),
+                                           arg0.getSourceClassName(),
+                                           arg0.getMessage());
+                strb.append(msg);
+                strb.append(System.getProperty("line.separator"));
+                return strb.toString();
             }
-
         };
 
         logger.setLevel(Level.INFO);
@@ -45,7 +43,7 @@ public class BpdfLogger {
         logger.addHandler(ch);
 
         // create a TXT formatter
-        fh = new FileHandler("BpdfLog.txt");
+        fh = new FileHandler("bpdf.log");
         fh.setFormatter(formatter);
         logger.addHandler(fh);
     }

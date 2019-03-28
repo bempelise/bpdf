@@ -1,6 +1,5 @@
 package bpdf;
 
-import bpdf.graph.BPDFGui;
 import java.io.IOException;
 import java.util.Date;
 import java.util.logging.ConsoleHandler;
@@ -21,7 +20,7 @@ import org.apache.commons.cli.ParseException;
 
 
 public class BpdfLauncher {
-    private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private final static Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     public static void main(String[] args) {
         try {
@@ -53,20 +52,22 @@ public class BpdfLauncher {
                 HelpFormatter formatter = new HelpFormatter();
                 formatter.printHelp("BPDF", options);
                 System.exit(0);
-            } else if(cmd.hasOption("g")) {
-                LOGGER.info("Launching GUI");
-                // Launch the GUI
-                BPDFGui bpdfgui = new BPDFGui();
-            } else if(cmd.hasOption("l")) {
+            }
+
+            if(cmd.hasOption("g")) {
+                status.gui = true;
+            }
+
+            if(cmd.hasOption("l")) {
                 status.path = cmd.getOptionValue("l");
             }
         } catch (ParseException exc) {
-            LOGGER.warning("Invalid arguments: " + exc);
+            LOG.warning("Invalid arguments: " + exc);
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("BPDF", options);
             System.exit(1);
         }
-        LOGGER.info("Launching Manager");
+        LOG.info("Launching Manager");
         BpdfManager manager = new BpdfManager(status);
     }
 }

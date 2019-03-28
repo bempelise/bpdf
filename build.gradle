@@ -9,22 +9,22 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 version = '0.1.0'
 
-/* 
- * Used to avoid warning "bootstrap class path not set in conjunction 
- * with -source 1.6" by setting the bootclasspath to compile against the 
- * rt.jar (or equivalent) for the older platform. javac will dutifully 
- * use the old language rules combined with new libraries, which can 
- * result in class files that do not work on the older platform since 
- * references to non-existent methods can get included. 
+/*
+ * Used to avoid warning "bootstrap class path not set in conjunction
+ * with -source 1.6" by setting the bootclasspath to compile against the
+ * rt.jar (or equivalent) for the older platform. javac will dutifully
+ * use the old language rules combined with new libraries, which can
+ * result in class files that do not work on the older platform since
+ * references to non-existent methods can get included.
  * Comment out if compilation does not work in your computer.
  */
 def bootClasspathStr = "$System.env.JAVA_HOME/jre/lib/rt.jar"
-project.tasks.withType(AbstractCompile, 
-    { 
-    // options is always there but not defined on AbstractCompile 
+project.tasks.withType(AbstractCompile,
+    {
+    // options is always there but not defined on AbstractCompile
     // so going to hit it anyway
     AbstractCompile ac ->
-    ac.options.bootClasspath = bootClasspathStr 
+    ac.options.bootClasspath = bootClasspathStr
     }
 )
 

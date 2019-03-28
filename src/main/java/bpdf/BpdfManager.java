@@ -7,18 +7,18 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import bpdf.graph.BPDFGraph;
+import bpdf.graph.BPDFGui;
 
 public class BpdfManager {
-    private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private final static Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    final BpdfStatus _status = new BpdfStatus();
 
     public BpdfManager(BpdfStatus status) {
-        LOGGER.setLevel(Level.INFO);
-        _status = status;
+        _status.assign(status);
         loadGraph();
-    }
-
-    public void run() {
-
+        if (_status.gui) {
+            launchgui();
+        }
     }
 
     private void loadGraph() {
@@ -31,14 +31,20 @@ public class BpdfManager {
                 _status.isLive = _graph.isLive();
                 _status.isSafe = _graph.isSafe();
             } else {
-                LOGGER.warning("File " + _status.path + " not found");
+                LOG.warning("File " + _status.path + " not found");
             }
         } else {
-            LOGGER.warning("File path not set.");
+            LOG.warning("File path not set");
         }
+    }
+
+    private void launchgui() {
+        _gui = new BPDFGui();
+        Thread t = new Thread(_gui, "GUI");
+        t.start();
     }
 
     private File _file;
     private BPDFGraph _graph;
-    private BpdfStatus _status;
+    private BPDFGui _gui;
 }

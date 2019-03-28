@@ -1,3 +1,4 @@
+*.log
 *.sublime-workspace
 .gradle/
 build/

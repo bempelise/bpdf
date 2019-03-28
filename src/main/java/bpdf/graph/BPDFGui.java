@@ -58,7 +58,7 @@ import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.layout.mxCompactTreeLayout;
 
-public class BPDFGui extends JFrame implements ActionListener
+public class BPDFGui extends JFrame implements ActionListener, Runnable
 {
     // gui
     private static final long serialVersionUID = 1568196732681655874L;
@@ -86,9 +86,12 @@ public class BPDFGui extends JFrame implements ActionListener
     private Map<String,String> boolMap = new HashMap<String,String>();
     private Scheduler scheduler = new SlottedScheduler();
 
-    public BPDFGui()
-    {
+    public BPDFGui() {
         super("Boolean Parametric Data Flow");
+    }
+
+    public void run()
+    {
 
         // Integer Parameter Panel
         intPanel = new JPanel();
