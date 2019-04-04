@@ -1,41 +1,22 @@
-// BPDFPort.java
-
 package bpdf.graph;
 
-import bpdf.symbol.*;
+import bpdf.symbol.Product;
 
-public class BPDFPort 
-{
-/******************************************************************************
- ** PRIVATE PARAMETERS
- ******************************************************************************/
-
-    /** 
-     * The port name
-     */
+public class BPDFPort {
+    /** The port name */
     private String name;
 
-    /** 
-     * The port rate
-     */
+    /** The port rate */
     private Product rate;
 
-    /** 
-     * The port status, false for input, true for output
-     */
+    /** The port status, false for input, true for output */
     private boolean status;
-
-
-/******************************************************************************
- ** CONSTRUCTORS
- ******************************************************************************/
 
     /**
      * Constructor that sets the port's name
      * @param name The port's name
      */
-    public BPDFPort(String n)
-    {
+    public BPDFPort(String n) {
         name = n;
     }
 
@@ -47,8 +28,7 @@ public class BPDFPort
      * @param r The port's rate
      * @param st True for output, false for input
      */
-    public BPDFPort(String n, String r, boolean st)
-    {
+    public BPDFPort(String n, String r, boolean st) {
         name = n;
         rate = new Product(r);
         status = st;
@@ -62,8 +42,7 @@ public class BPDFPort
      * @param r The port's rate
      * @param st True for output, false for input
      */
-    public BPDFPort(String n, Product r, boolean st)
-    {
+    public BPDFPort(String n, Product r, boolean st) {
         name = n;
         rate = r;
         status = st;
@@ -77,8 +56,7 @@ public class BPDFPort
      * Sets the port's rate based on a product
      * @param The given product
      */
-    public void setRate(Product r)
-    {
+    public void setRate(Product r) {
         rate = r;
     }
 
@@ -86,8 +64,7 @@ public class BPDFPort
      * Sets the port's rate based on a string
      * @param The given string
      */
-    public void setRate(String r)
-    {
+    public void setRate(String r) {
         setRate(new Product(r));
     }
 
@@ -95,8 +72,7 @@ public class BPDFPort
      * Sets the port's rate based on a string
      * @param The given string
      */
-    public void setStatus(boolean st)
-    {
+    public void setStatus(boolean st) {
         status = st;
     }
 
@@ -108,8 +84,7 @@ public class BPDFPort
      * Returns the port's name
      * @return The port's name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
@@ -117,8 +92,7 @@ public class BPDFPort
      * Returns the port's rate
      * @return The port's rate
      */
-    public Product getRate()
-    {
+    public Product getRate() {
         return rate;
     }
 
@@ -126,8 +100,7 @@ public class BPDFPort
      * Returns whether the port is an output or not
      * @return True if it is an output
      */
-    public boolean isOutput()
-    {
+    public boolean isOutput() {
         return status;
     }
 
@@ -135,8 +108,7 @@ public class BPDFPort
      * Returns whether the port is an input or not
      * @return True if it is an input
      */
-    public boolean isInput()
-    {
+    public boolean isInput() {
         return !status;
     }
 }

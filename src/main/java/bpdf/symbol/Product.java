@@ -1,10 +1,9 @@
-// Product.java
 package bpdf.symbol;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -13,38 +12,19 @@ import java.util.StringTokenizer;
  * Product expressions
  * @author Vagelis Bebelis
  */
-public class Product extends Expression 
-{
-/******************************************************************************
- ** PRIVATE PARAMETERS
- ******************************************************************************/
-
-    /** 
-     * A power map holding all the symbols of the expression
-     * along with their powers.
-     */
-    private HashMap<String, Integer> _map = new HashMap<String, Integer>();
+public class Product extends Expression {
+    /** Power map (Expression, power) */
+    private HashMap<String, Integer> m_map = new HashMap<String, Integer>();
+    /** The numeric part of the product */
+    private int m_numeric = 1;
+    /** Sign of the product (positive / negative) */
+    private boolean m_sign = true;
 
     /**
-     * The numeric part of the product
-     */
-    private int _numeric = 1;
-
-    /**
-     * Sign of the product (positive / negative)
-     */
-    private boolean _sign = true;
-
-/******************************************************************************
- ** CONSTRUCTORS
- ******************************************************************************/
-
-    /** 
      * Creates a new product from a given string.
      * @param string The input string.
      */
-    public Product(String string) 
-    {
+    public Product(String string) {
         parseString(string);
     }
 
@@ -52,14 +32,12 @@ public class Product extends Expression
      * Creates a new product from a given numeric
      * @param numeric The input numeric
      */
-    public Product(int numeric)
-    {
-        if (numeric > 0)
-            _numeric *= numeric;
-        else
-        {
-            _numeric *= numeric*(-1);
-            _sign = !_sign;
+    public Product(int numeric) {
+        if (numeric > 0) {
+            m_numeric *= numeric;
+        } else {
+            m_numeric *= numeric * (-1);
+            m_sign = !m_sign;
         }
     }
 
@@ -67,17 +45,15 @@ public class Product extends Expression
      * Creates a new Product from a given Product (copy)
      * @param prod The given Product
      */
-    public Product(Product prod)
-    {
-        this(prod.getMap(),prod.getNumeric(),prod.getSign());
+    public Product(Product prod) {
+        this(prod.getMap(), prod.getNumeric(), prod.getSign());
     }
 
     /**
      * Creates a new product from a given power map.
      * @param map The given power map
      */
-    public Product(HashMap<String, Integer> map) 
-    {
+    public Product(HashMap<String, Integer> map) {
         parseString(mapToString(map));
     }
 
@@ -86,17 +62,12 @@ public class Product extends Expression
      * @param map The given power map
      * @param numeric The given numeric
      */
-    public Product(HashMap<String, Integer> map, int numeric) 
-    {
-        if (numeric > 0)
-        {
-            _numeric *= numeric;
-        }
-        else
-        {
-            _numeric *= numeric*(-1);
-            _sign = !_sign;
-
+    public Product(HashMap<String, Integer> map, int numeric) {
+        if (numeric > 0) {
+            m_numeric *= numeric;
+        } else {
+            m_numeric *= numeric * (-1);
+            m_sign = !m_sign;
         }
         parseString(mapToString(map));
     }
@@ -107,128 +78,103 @@ public class Product extends Expression
      * @param numeric The given numeric
      * @param sign The given sign
      */
-    public Product(HashMap<String, Integer> map, int numeric, boolean sign)
-    {
-        _sign = sign;
-        if (numeric > 0)
-        {
-            _numeric *= numeric;
-        }
-        else
-        {
-            _numeric *= numeric*(-1);
-            _sign = !_sign;
+    public Product(HashMap<String, Integer> map, int numeric, boolean sign) {
+        m_sign = sign;
+        if (numeric > 0) {
+            m_numeric *= numeric;
+        } else {
+            m_numeric *= numeric * (-1);
+            m_sign = !m_sign;
 
         }
         parseString(mapToString(map));
     }
-
-/******************************************************************************
- ** EXPRESSION METHODS - MATH FUNCTIONS
- ******************************************************************************/
 
     /**
      * Adds the product to an expression
      * @param expr The expression to add with
      * @return The resulting Polynomial
      */
-    public Expression add(Expression expr)
-    {
-        if (expr instanceof Polynomial)
-        {
+    public Expression add(Expression expr) {
+        if (expr instanceof Polynomial) {
             Polynomial poly = expr.getPolynomial();
             poly.add(this);
             return poly;
-        }
-        else
-        {
+        } else {
             ArrayList<Expression> resList = new ArrayList<Expression>();
             resList.add(this);
             resList.add(expr);
             Polynomial poly = new Polynomial(resList);
             return poly;
         }
-        
-        // Expression resExpr = expr.getPolynomial().add(this);
-        // return resExpr;
     }
-    
-    /** 
+
+    /**
      * Multiplies the Product with another Expression
      * @param expr The Expression to be multiplied with
      * @return The resulting Expression
      */
-    public Expression multiply(Expression expr)
-    {
-        if (expr instanceof Product)
-        {
+    public Expression multiply(Expression expr) {
+        if (expr instanceof Product) {
             Product prod = (Product) expr;
-            
-            HashMap<String, Integer> resMap = 
-                MapManipulator.addMaps(_map, prod.getMap());
-            int resNumeric = _numeric * prod.getNumeric();
-            boolean resSign = !(_sign ^ prod.getSign());
-            
-            Product resProd = new Product(resMap,resNumeric,resSign);
+
+            HashMap<String, Integer> resMap =
+                MapManipulator.addMaps(m_map, prod.getMap());
+            int resNumeric = m_numeric * prod.getNumeric();
+            boolean resSign = !(m_sign ^ prod.getSign());
+
+            Product resProd = new Product(resMap, resNumeric, resSign);
             return resProd;
-        } 
-        else
+        } else {
             return expr.multiply(this);
+        }
     }
 
-    /** 
+    /**
      * Divides this Product with the given Expression
      * @param expr The denominator
      * @return The resulting Expression
      */
-    public Expression divide (Expression expr) 
-    {
+    public Expression divide(Expression expr) {
         // Check if divide by 0
-        if (expr.isZero()) throw new RuntimeException("Cannot divide by 0!");
+        if (expr.isZero()) {
+            throw new RuntimeException("Cannot divide by 0!");
+        }
         // Check if divide by 1
-        if (expr.isUnit()) return this;
+        if (expr.isUnit()) {
+            return this;
+        }
 
-        if (expr instanceof Product)
-        {
-            Product prod = (Product) expr;         
+        if (expr instanceof Product) {
+            Product prod = (Product) expr;
             Fraction resFrac = new Fraction(this, prod);
             return resFrac;
-        } 
-        else if (expr instanceof Fraction)
-        {
-            Fraction frac = (Fraction) expr;            
+        } else if (expr instanceof Fraction) {
+            Fraction frac = (Fraction) expr;
             Fraction resFrac = new Fraction(
                 frac.getDenom().multiply(this).getProduct(),
                 frac.getNum());
             return resFrac;
-        } 
-        else // It's Polynomial
-        {
+        } else {
+            // It's Polynomial
             throw new RuntimeException("Cannot divide by a Polynomial");
-        } 
+        }
     }
 
-    /** 
+    /**
      * Returns the Greater Common Divisor of the two expressions
      * @param expr The given expression
      * @return The GCD
      */
-    public Product gcd(Expression expr)
-    {
-        if (expr instanceof Polynomial)
-        {
+    public Product gcd(Expression expr) {
+        if (expr instanceof Polynomial) {
             return expr.gcd(this);
-        }
-        else
-        {
+        } else {
             Product prod = expr.getFraction().getNum();
 
-            HashMap<String, Integer> resMap = 
-                MapManipulator.gcdMaps(_map,prod.getMap());
-            int resNumeric = 
-                MapManipulator.gcdNum(_numeric,prod.getNumeric());
-
-            return new Product(resMap,resNumeric);
+            HashMap<String, Integer> resMap = MapManipulator.gcdMaps(m_map, prod.getMap());
+            int resNumeric = MapManipulator.gcdNum(m_numeric, prod.getNumeric());
+            return new Product(resMap, resNumeric);
         }
     }
 
@@ -237,25 +183,23 @@ public class Product extends Expression
      * @param prodList The list of products
      * @return The GCD oft he products as a product
      */
-    public static Product gcdAll(List<Product> prodList)
-    {
-        if (prodList.isEmpty())
-            throw new RuntimeException ("Empty Product list!");
+    public static Product gcdAll(List<Product> prodList) {
+        if (prodList.isEmpty()) {
+            throw new RuntimeException("Empty Product list!");
+        }
         Product tmpGCD = prodList.get(0);
-        for (int i = 1; i < prodList.size(); i++)
-        {
+        for (int i = 1; i < prodList.size(); i++) {
             tmpGCD = tmpGCD.gcd(prodList.get(i));
         }
         return tmpGCD;
     }
-    
-    /** 
+
+    /**
      * Returns an expression of the LCM between the two Products
      * @param prod The given Product
      * @return The LCM of the two Products
      */
-    public Product lcm(Product prod)
-    {
+    public Product lcm(Product prod) {
         return (Product) this.multiply(prod.divide(this.gcd(prod)));
     }
 
@@ -265,29 +209,28 @@ public class Product extends Expression
      * @param n The integer value used for the evaluation
      * @return The resulting expression
      */
-    public Product evaluate(String p, Integer n)
-    {
+    public Product evaluate(String p, Integer n) {
         HashMap<String, Integer> resMap = new HashMap<String, Integer>();
-        resMap.putAll(_map);
-        if (!resMap.containsKey(p))
-            return new Product(resMap, _numeric, _sign);
-        
+        resMap.putAll(m_map);
+        if (!resMap.containsKey(p)) {
+            return new Product(resMap, m_numeric, m_sign);
+        }
+
         int power = resMap.get(p);
         resMap.remove(p);
 
-        int resNumeric = this.getNumeric() * (int) Math.pow(n,power);
-        if (!_sign)
-            resNumeric = resNumeric*(-1);
-        return new Product(resMap,resNumeric);
-
+        int resNumeric = this.getNumeric() * (int) Math.pow(n, power);
+        if (!m_sign) {
+            resNumeric = resNumeric * (-1);
+        }
+        return new Product(resMap, resNumeric);
     }
 
     /**
      * Marks the expression to be under a ceiling
      * Case of Product - returns self
      */
-    public Expression ceiling()
-    {
+    public Expression ceiling() {
         return this;
     }
 
@@ -295,28 +238,21 @@ public class Product extends Expression
      * Marks the expression to be under a floor
      * Case of Product - returns self
      */
-    public Expression floor()
-    {
+    public Expression floor() {
         return this;
     }
 
-    
-
-/******************************************************************************
- ** EXPRESSION METHODS - PROPERTY CHECK
- ******************************************************************************/
-
-    /** 
+    /**
      * Compares this with another expression
      * @param expr The expression to compare with
      * @return True if they are equal, false otherwise
      */
-    public boolean isEqualTo (Expression expr)
-    {
-        if (expr.isZero())
+    public boolean isEqualTo(Expression expr) {
+        if (expr.isZero()) {
             return this.isZero();
-        else if (this.isZero())
+        } else if (this.isZero()) {
             return expr.isZero();
+        }
         return (expr.divide(this).isUnit());
     }
 
@@ -326,29 +262,19 @@ public class Product extends Expression
      * @param expr The expression to compare with
      * @return True if the current is greater false otherwise
      */
-    public boolean isGreaterThan(Expression expr)
-    {
-        if (expr.isProduct())
-        {
+    public boolean isGreaterThan(Expression expr) {
+        if (expr.isProduct()) {
             Product prod = expr.getProduct();
 
             // Case Zeros
-            if (this.isZero())
-            {
+            if (this.isZero()) {
                 int numeric = prod.getNumeric();
-                if (numeric < 0)
-                    return true;
-                else 
-                    return false;
+                return (numeric < 0);
             }
 
-            if (expr.isZero())
-            {
+            if (expr.isZero()) {
                 int numeric = this.getNumeric();
-                if (numeric > 0)
-                    return true;
-                else 
-                    return false;
+                return (numeric > 0);
             }
 
             // Simplification
@@ -358,53 +284,47 @@ public class Product extends Expression
             Product prodParam = (Product) prod.getParam();
             Product thisParam = (Product) current.getParam();
 
-            if (prodParam.isEqualTo(thisParam))
-            {
+            if (prodParam.isEqualTo(thisParam)) {
                 return (prod.getNumeric() < current.getNumeric());
-            }
-            else if (prod.isNumber())
-            {
-                if (current.isNumber())
+            } else if (prod.isNumber()) {
+                if (current.isNumber()) {
                     return (prod.getNumeric() < current.getNumeric());
-                else if (prod.getNumeric() <= current.getNumeric())
+                } else if (prod.getNumeric() <= current.getNumeric()) {
                     return true;
-                else // we can't know
-                    throw new RuntimeException("Cannot compare " 
-                        + current.getString() + " with " + prod.getString());
-            }
-            else
-            {
+                } else {
+                    // we can't know
+                    throw new RuntimeException("Cannot compare " + current.getString()
+                                               + " with " + prod.getString());
+                }
+            } else {
                 return false;
             }
         }
-        throw new RuntimeException("Cannot compare non- Products: "
-            + this.getString() + " with " + expr.getString());
+        throw new RuntimeException("Cannot compare non-Products: " + this.getString()
+                                   + " with " + expr.getString());
     }
 
-    /** 
+    /**
      * Returns true if the expression is equal to 1
      * @return The expression equals 1 or not
      */
-    public boolean isUnit()
-    {
-        return ((_numeric == 1) && (_map.isEmpty()));
+    public boolean isUnit() {
+        return ((m_numeric == 1) && (m_map.isEmpty()));
     }
-    
-    /** 
+
+    /**
      * Returns true if the expression is equal to 0
      * @return The expression equals 0 or not
      */
-    public boolean isZero()
-    {
-        return (_numeric == 0);
+    public boolean isZero() {
+        return (m_numeric == 0);
     }
 
     /**
      * Returns true if the expression can be captured as a Product
      * @return The expression can be a Product or not
      */
-    public boolean isProduct()
-    {
+    public boolean isProduct() {
         return true;
     }
 
@@ -412,8 +332,7 @@ public class Product extends Expression
      * Returns true if the expression can be captured as a Fraction
      * @return The expression can be a Product or not
      */
-    public boolean isFraction()
-    {
+    public boolean isFraction() {
         return true;
     }
 
@@ -421,38 +340,29 @@ public class Product extends Expression
      * Returns true if the expression can be captured as an integer
      * @return The expression can be an integer or not
      */
-    public boolean isNumber()
-    {
-        return (_map.isEmpty()); 
+    public boolean isNumber() {
+        return (m_map.isEmpty());
     }
 
     /**
      * Returns true if fraction is ceilinged
      */
-    public boolean hasCeiling()
-    {
+    public boolean hasCeiling() {
         return false;
     }
 
     /**
      * Returns true if fraction is floored
      */
-    public boolean hasFloor()
-    {
+    public boolean hasFloor() {
         return false;
     }
 
-
-/******************************************************************************
- ** EXPRESSION METHODS - TRANSFORMATIONS
- ******************************************************************************/
-
-    /** 
+    /**
      * Returns the equivalent expression as Product if possible
      * @return The expression as Product if possible
      */
-    public Product getProduct()
-    {
+    public Product getProduct() {
         return this;
     }
 
@@ -460,16 +370,14 @@ public class Product extends Expression
      * Returns the equivalent expression as Fraction if possible
      * @return The expression as Fraction if possible
      */
-    public Fraction getFraction()
-    {
+    public Fraction getFraction() {
         return new Fraction(this);
     }
 
     /**
      * Return the expression as a Polynomial
      */
-    public Polynomial getPolynomial()
-    {
+    public Polynomial getPolynomial() {
         return new Polynomial(this);
     }
 
@@ -477,38 +385,37 @@ public class Product extends Expression
      * Return the expression as an integer
      * @return The expression as integer if possible
      */
-    public int getNumber()
-    {
-        if (this.isNumber()) 
-        {
-            if (getSign())
-                return _numeric;
-            else 
-                return _numeric*(-1);
+    public int getNumber() {
+        if (this.isNumber()) {
+            if (getSign()) {
+                return m_numeric;
+            } else {
+                return m_numeric * (-1);
+            }
+        } else {
+            throw new RuntimeException("Product: " + getString() + " is not an integer");
         }
-        else throw new RuntimeException("Product: " + getString()
-            + " is not an integer");
     }
-    
-    /** 
+
+    /**
      * Return the expression's string.
      * @return The expression string.
      */
-    public String getString() 
-    {
+    public String getString() {
         String resString = "";
-        if (!_sign) resString += "-";
-        if (this.isNumber())
-        {
-            resString += Integer.toString(_numeric);
+        if (!m_sign) {
+            resString += "-";
+        }
+
+        if (this.isNumber()) {
+            resString += Integer.toString(m_numeric);
             return resString;
         }
-        if (_numeric == 1) 
-        {
-            resString += mapToString(_map);
+        if (m_numeric == 1) {
+            resString += mapToString(m_map);
             return resString;
         }
-        resString += Integer.toString(_numeric) + '*' + mapToString(_map);
+        resString += Integer.toString(m_numeric) + '*' + mapToString(m_map);
         return resString;
     }
 
@@ -516,151 +423,125 @@ public class Product extends Expression
      * Return the parametric part of the Expression
      * @return The resulting Expression
      */
-    public Expression getParam()
-    {
-        return new Product(_map);
+    public Expression getParam() {
+        return new Product(m_map);
     }
 
-/******************************************************************************
- ** GETTERS
- ******************************************************************************/
-
-    /** 
+    /**
      * Returns the power map
      * @return The power map
      */
-    public HashMap<String, Integer> getMap() 
-    {
-        return _map;
+    public HashMap<String, Integer> getMap() {
+        return m_map;
     }
 
-    /** 
+    /**
      * Returns the numeric
      * @return The numeric
      */
-    public int getNumeric() 
-    {
-        return _numeric;
+    public int getNumeric() {
+        return m_numeric;
     }
 
     /**
      * Returns the sign
      * @return The sign
      */
-    public boolean getSign()
-    {
-        return _sign;
+    public boolean getSign() {
+        return m_sign;
     }
 
     /**
      * Returns the list of the Product parameters
      * @return The list of a the product parameters
      */
-    public List<String> getParamList() 
-    {
-        Set<String> paramSet = _map.keySet();
+    public List<String> getParamList() {
+        Set<String> paramSet = m_map.keySet();
         List<String> paramList = new ArrayList<String>();
         paramList.addAll(paramSet);
         return paramList;
     }
 
-    public Set<String> getParamSet()
-    {
-        return _map.keySet();
+    public Set<String> getParamSet() {
+        return m_map.keySet();
     }
 
-/******************************************************************************
- ** PRIVATE METHODS
- ******************************************************************************/
 
-    /** 
+    /**
      * Generate the Product's map and numeric based on the input String
      */
-    private void parseString(String string)
-    {
+    private void parseString(String string) {
         // Parse multiplications
         StringTokenizer tokenStar = new StringTokenizer(string, "*");
-        while (tokenStar.hasMoreTokens()) 
-        {
+        while (tokenStar.hasMoreTokens()) {
             // Parse powers
-            StringTokenizer tokenExpo = 
-                new StringTokenizer(tokenStar.nextToken(), "^");
+            StringTokenizer tokenExpo = new StringTokenizer(tokenStar.nextToken(), "^");
             String value = tokenExpo.nextToken();
             int power = 1;
 
             // Get power
-            if (tokenExpo.hasMoreTokens()) 
-            {
-                try 
-                {
+            if (tokenExpo.hasMoreTokens()) {
+                try {
                     // Get numerical value of power
                     power = Integer.parseInt(tokenExpo.nextToken());
-                    if (power < 0) 
-                    {
+                    if (power < 0) {
                         throw new RuntimeException("Negative Exponent!");
                     }
-                } 
-                catch (NumberFormatException e) 
-                {
+                } catch (NumberFormatException e) {
                     throw new RuntimeException("Non numerical Exponential!");
                 }
             }
 
             // Check sign
-            if (value.startsWith("-"))
-            {
-                _sign = !_sign;
+            if (value.startsWith("-")) {
+                m_sign = !m_sign;
                 value = value.substring(1);
             }
 
             // Check if value is numeric
-            try
-            {
+            try {
                 int parsedNumeric = Integer.parseInt(value);
-                _numeric *= Math.pow(parsedNumeric,power);
-            }
-            catch (NumberFormatException e)
-            {
-                addFactor(value,power);
+                m_numeric *= Math.pow(parsedNumeric, power);
+            } catch (NumberFormatException e) {
+                addFactor(value, power);
             }
         }
     }
 
-    /** 
+    /**
      * Add a new factor in the hash map
      * @param token The map key
      * @param power Its power
      */
-    private void addFactor(String token, int power) 
-    {
-        if (_map.containsKey(token)) 
-        {
-            int current = _map.get(token);
-            _map.put(token, current + power);
-        } 
-        else 
-        {
-            _map.put(token, power);
+    private void addFactor(String token, int power) {
+        if (m_map.containsKey(token)) {
+            int current = m_map.get(token);
+            m_map.put(token, current + power);
+        } else {
+            m_map.put(token, power);
         }
     }
 
-    /** 
+    /**
      * Create the expression string from a given power map
      * @param map The given power map
      * @return The string representation of the map
      */
-    private String mapToString(HashMap<String, Integer> map)
-    {
+    private String mapToString(HashMap<String, Integer> map) {
         Iterator<Map.Entry<String, Integer>> iMap = map.entrySet().iterator();
         String tempStr = "";
-        while (iMap.hasNext()) 
-        {
+        while (iMap.hasNext()) {
             Map.Entry<String, Integer> tempEntry = iMap.next();
             String key = tempEntry.getKey();
             int value = tempEntry.getValue();
             tempStr = tempStr + key;
-            if (value != 1) tempStr = tempStr + "^" + value;
-            if (iMap.hasNext()) tempStr = tempStr + "*";
+            if (value != 1) {
+                tempStr = tempStr + "^" + value;
+            }
+
+            if (iMap.hasNext()) {
+                tempStr = tempStr + "*";
+            }
         }
         return tempStr;
     }

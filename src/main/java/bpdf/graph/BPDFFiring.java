@@ -1,39 +1,22 @@
-// BPDFFiring.java
-
 package bpdf.graph;
 
-import bpdf.symbol.*;
+import bpdf.symbol.Product;
 
-public class BPDFFiring
-{
-/******************************************************************************
- ** PRIVATE PARAMETERS
- ******************************************************************************/
+public class BPDFFiring {
 
     private String name;
     private Product times;
 
-/******************************************************************************
- ** CONSTRUCTORS
- ******************************************************************************/
-
-    public BPDFFiring(String n, Product t)
-    {
+    public BPDFFiring(String n, Product t) {
         name = n;
         times = t;
     }
 
-/******************************************************************************
- ** METHODS
- ******************************************************************************/
-    
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public Product getTimes()
-    {
+    public Product getTimes() {
         return times;
     }
 }

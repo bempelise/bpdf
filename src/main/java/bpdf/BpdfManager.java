@@ -1,37 +1,32 @@
 package bpdf;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
 import bpdf.graph.BPDFGraph;
 import bpdf.graph.BPDFGui;
+import java.io.File;
+import java.util.logging.Logger;
 
 public class BpdfManager {
-    private final static Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    final BpdfStatus _status = new BpdfStatus();
+    private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     public BpdfManager(BpdfStatus status) {
-        _status.assign(status);
+        m_status = status;
         loadGraph();
-        if (_status.gui) {
+        if (m_status.gui) {
             launchgui();
         }
     }
 
     private void loadGraph() {
-        if (_status.path != null) {
-            _file = new File(_status.path);
-            if (_file.isFile()) {
-                _status.isSet = true;
-                _graph = new BPDFGraph(_file);
-                _status.isConsistent = _graph.isConsistent();
-                _status.isLive = _graph.isLive();
-                _status.isSafe = _graph.isSafe();
+        if (m_status.path != null) {
+            m_file = new File(m_status.path);
+            if (m_file.isFile()) {
+                m_status.isSet = true;
+                m_graph = new BPDFGraph(m_file);
+                m_status.isConsistent = m_graph.isConsistent();
+                m_status.isLive = m_graph.isLive();
+                m_status.isSafe = m_graph.isSafe();
             } else {
-                LOG.warning("File " + _status.path + " not found");
+                LOG.warning("File " + m_status.path + " not found");
             }
         } else {
             LOG.warning("File path not set");
@@ -39,12 +34,13 @@ public class BpdfManager {
     }
 
     private void launchgui() {
-        _gui = new BPDFGui();
-        Thread t = new Thread(_gui, "GUI");
+        m_gui = new BPDFGui();
+        Thread t = new Thread(m_gui, "GUI");
         t.start();
     }
 
-    private File _file;
-    private BPDFGraph _graph;
-    private BPDFGui _gui;
+    private File m_file;
+    private BPDFGraph m_graph;
+    private BPDFGui m_gui;
+    private BpdfStatus m_status = new BpdfStatus();
 }

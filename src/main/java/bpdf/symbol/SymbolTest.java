@@ -1,8 +1,6 @@
-// SymbolTest.java
 package bpdf.symbol;
 
 import java.util.ArrayList;
-import java.lang.Math;
 
 public class SymbolTest {
 
@@ -10,34 +8,30 @@ public class SymbolTest {
      * @param args
      */
     public static void main(String[] args) {
-
-
         boolean testProduct = false;
         boolean testFraction = false;
         boolean testPolynomial = false;
         boolean testComposite = false;
         boolean testBoolean = true;
-        
-        // Testing Product class
-        if (testProduct)
+
+        if (testProduct) {
             testProduct();
-        
+        }
 
-        // Testing Polynomial class
-        if (testPolynomial)
+        if (testPolynomial) {
             testPolynomial();
+        }
 
-        // testing Composite expansion
-        if (testComposite)
+        if (testComposite) {
             testComposite();
+        }
 
-        if (testBoolean)
+        if (testBoolean) {
             testBoolean();
-        
+        }
     }
 
-    static void testProduct()
-    {
+    static void testProduct() {
         // Constructors & boolean properties
         Product zeroProd = new Product("0");
         Expression zeroExpr = new Product(0);
@@ -107,7 +101,7 @@ public class SymbolTest {
         Expression prod34 = prod3.multiply(prod4);
         Expression prod25 = prod2.multiply(prod5);
         Expression prod14 = prod1.multiply(prod4);
-        
+
         assert prod13.isEqualTo(prod25);
         assert prod13.isEqualTo(resProd13);
         assert prod34.isEqualTo(resProd34);
@@ -126,12 +120,12 @@ public class SymbolTest {
         Expression quot24 = prod2.divide(prod4);
         Expression quot35 = prod3.divide(prod5);
         Expression quot43 = prod4.divide(prod3);
- 
+
         Expression resQuot13 = new Fraction(new Product("6"));
         Expression resQuot42 = new Fraction(new Product("q^3"));
-        Expression resQuot24 = new Fraction(unitProd,new Product("q^3"));
-        Expression resQuot35 = new Fraction(unitProd,new Product("2*p"));
-        Expression resQuot43 = new Fraction(prod4,prod3);
+        Expression resQuot24 = new Fraction(unitProd, new Product("q^3"));
+        Expression resQuot35 = new Fraction(unitProd, new Product("2*p"));
+        Expression resQuot43 = new Fraction(prod4, prod3);
 
         assert quot13.isEqualTo(resQuot13);
         assert quot42.isEqualTo(resQuot42);
@@ -211,7 +205,7 @@ public class SymbolTest {
         // System.out.println(prod1add1n.isZero());
         // System.out.println(prod2add2n.isZero());
         // System.out.println(prod3add3n.isZero());
-        // System.out.println(prod4add4n.isZero()); 
+        // System.out.println(prod4add4n.isZero());
         // System.out.println(prod5add5n.isZero());
 
         /* Comparison */
@@ -222,54 +216,53 @@ public class SymbolTest {
         Expression prod5comp = new Product(4);
         Expression prod6comp = new Product(3);
 
-        System.out.println(prod1comp.getString()
-            + " > " + prod2comp.getString()
-            + " - " + prod1comp.isGreaterThan(prod2comp));
-        System.out.println(prod5comp.getString()
-            + " > " + prod6comp.getString()
-            + " - " + prod5comp.isGreaterThan(prod6comp));
-        System.out.println(prod3comp.getString()
-            + " > " + prod2comp.getString()
-            + " - " + prod3comp.isGreaterThan(prod2comp));
+        System.out.println(prod1comp.getString() + " > " +
+                           prod2comp.getString() + " - " +
+                           prod1comp.isGreaterThan(prod2comp));
+        System.out.println(prod5comp.getString() + " > " +
+                           prod6comp.getString() + " - " +
+                           prod5comp.isGreaterThan(prod6comp));
+        System.out.println(prod3comp.getString() + " > " +
+                           prod2comp.getString() + " - " +
+                           prod3comp.isGreaterThan(prod2comp));
 
         assert prod1comp.isGreaterThan(prod2comp);
         assert prod5comp.isGreaterThan(prod6comp);
         assert prod3comp.isGreaterThan(prod2comp);
 
-        System.out.println(prod2comp.getString()
-            + " > " + prod1comp.getString()
-            + " - " + prod2comp.isGreaterThan(prod1comp));
-        System.out.println(prod6comp.getString()
-            + " > " + prod5comp.getString()
-            + " - " + prod6comp.isGreaterThan(prod5comp));
-        System.out.println(prod2comp.getString() 
-            + " > " + prod3comp.getString()
-            + " - " + prod2comp.isGreaterThan(prod3comp));
+        System.out.println(prod2comp.getString() + " > " + 
+                           prod1comp.getString() + " - " +
+                           prod2comp.isGreaterThan(prod1comp));
+        System.out.println(prod6comp.getString() + " > " +
+                           prod5comp.getString() + " - " +
+                           prod6comp.isGreaterThan(prod5comp));
+        System.out.println(prod2comp.getString() + " > " +
+                           prod3comp.getString() + " - " +
+                           prod2comp.isGreaterThan(prod3comp));
 
         /* Throws exception */
         // prod4comp.isGreaterThan(prod1comp);
     }
 
-    static void testPolynomial()
-    {
-        Fraction frac1 = new Fraction(new Product(0),new Product(3));
+    static void testPolynomial() {
+        Fraction frac1 = new Fraction(new Product(0), new Product(3));
         assert frac1.isZero();
-        Fraction frac2 = new Fraction(new Product("6"),new Product(2));
+        Fraction frac2 = new Fraction(new Product("6"), new Product(2));
         assert frac2.isNumber();
 
-        Fraction frac3 = new Fraction(new Product("3*x"),new Product("2*y"));
-        Fraction frac4 = new Fraction(new Product("x"),new Product("3*y"));
-        Fraction frac5 = new Fraction(new Product("2*x"),new Product("y"));
+        Fraction frac3 = new Fraction(new Product("3*x"), new Product("2*y"));
+        Fraction frac4 = new Fraction(new Product("x"), new Product("3*y"));
+        Fraction frac5 = new Fraction(new Product("2*x"), new Product("y"));
 
         ArrayList<Expression> fracList1 = new ArrayList<Expression>();
         ArrayList<Expression> fracList2 = new ArrayList<Expression>();
         ArrayList<Expression> fracList3 = new ArrayList<Expression>();
 
-        fracList1.add(new Fraction(new Product("d"),new Product(5)));
+        fracList1.add(new Fraction(new Product("d"), new Product(5)));
         fracList1.add(frac1);
 
-        fracList2.add(new Fraction(new Product("3*d"),new Product("q")));
-        fracList2.add(new Fraction(new Product("2*p"),new Product(9)));
+        fracList2.add(new Fraction(new Product("3*d"), new Product("q")));
+        fracList2.add(new Fraction(new Product("2*p"), new Product(9)));
         fracList2.add(frac2);
 
         fracList3.add(frac3);
@@ -277,8 +270,7 @@ public class SymbolTest {
         fracList3.add(frac5);
 
         Polynomial poly1 = new Polynomial();
-        Polynomial poly2 = new Polynomial(
-            new Fraction(new Product("q"),new Product(3)));
+        Polynomial poly2 = new Polynomial(new Fraction(new Product("q"),new Product(3)));
         Polynomial poly3 = new Polynomial(fracList1);
         Polynomial poly4 = new Polynomial(fracList2);
         Polynomial poly5 = new Polynomial(fracList3);
@@ -301,16 +293,16 @@ public class SymbolTest {
 
         Polynomial poly7 = new Polynomial(prod1);
         poly7 = poly7.add(prod3).getPolynomial();
-        
+
         Polynomial poly8 = new Polynomial(prod3);
         poly8 = poly8.add(prod4).getPolynomial();
-        
+
         Polynomial poly9 = new Polynomial(prod4);
         poly9 = poly9.add(prod1).getPolynomial();
-        
+
         Polynomial poly10 = new Polynomial(prod2);
         poly10 = poly10.add(prod5).getPolynomial();
-        
+
         Polynomial poly11 = poly9.add(prod4).getPolynomial();
 
         System.out.println(poly6.getString());
@@ -321,18 +313,16 @@ public class SymbolTest {
         System.out.println(poly11.getString());
     }
 
-    static void testComposite()
-    {
+    static void testComposite() {
         Product uSol = new Product("5*p*q");
         Product mSol = new Product("5*p");
         Product rPeriod = new Product("p*q");
         Product wPeriod = new Product("p");
         Product negWPeriod = new Product("-p");
 
-        Expression aux = new Fraction(new Product("i"),rPeriod);
+        Expression aux = new Fraction(new Product("i"), rPeriod);
 
-        Expression f = wPeriod.multiply(
-                        aux.ceiling()).add(new Product (1)).add(negWPeriod);
+        Expression f = wPeriod.multiply(aux.ceiling()).add(new Product (1)).add(negWPeriod);
 
         // System.out.println(f.getClass().getName());
         // f = f.add(new Product (1));
@@ -340,18 +330,15 @@ public class SymbolTest {
         // f = f.add(negWPeriod);
         // System.out.println(f.getClass().getName());
 
-
-        Expression feval = f.evaluate("p",1);
+        Expression feval = f.evaluate("p", 1);
         System.out.println(feval.getString());
-        feval = feval.evaluate("q",2);
+        feval = feval.evaluate("q", 2);
         System.out.println(feval.getString());
-        feval = feval.evaluate("i",1);
+        feval = feval.evaluate("i", 1);
         System.out.println(feval.getString());
-
     }
 
-    static void testBoolean()
-    {
+    static void testBoolean() {
         String expr1 = "(a&b)|c&!a";
         String expr2 = "(!a&b)";
         String expr3 = "!a&b";
@@ -380,23 +367,19 @@ public class SymbolTest {
         // test5.print();
         // test6.print();
 
+        test1.setValue("a", true);
+        test1.setValue("b", false);
+        test1.setValue("c", true);
 
+        test2.setValue("a", false);
+        test2.setValue("b", true);
 
-        test1.setValue("a",true);
-        test1.setValue("b",false);
-        test1.setValue("c",true);
+        test3.setValue("a", false);
+        test3.setValue("b", true);
 
-        test2.setValue("a",false);
-        test2.setValue("b",true);
-
-        test3.setValue("a",false);
-        test3.setValue("b",true);
-
-        test4.setValue("a",true);
-        test4.setValue("b",true);
-        test4.setValue("c",true);
-
-
+        test4.setValue("a", true);
+        test4.setValue("b", true);
+        test4.setValue("c", true);
 
         System.out.println(test1.getValue());
         // System.out.println(test2.getValue());
@@ -404,8 +387,5 @@ public class SymbolTest {
         // System.out.println(test4.getValue());
         // System.out.println(test5.getValue());
         // System.out.println(test6.getValue());
-
-
-
-        }
+    }
 }

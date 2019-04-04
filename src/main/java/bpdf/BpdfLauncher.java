@@ -1,7 +1,6 @@
 package bpdf;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.logging.Logger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -13,7 +12,7 @@ import org.apache.commons.cli.ParseException;
 
 
 public class BpdfLauncher {
-    private final static Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     public static void main(String[] args) {
         try {
@@ -47,11 +46,11 @@ public class BpdfLauncher {
                 System.exit(0);
             }
 
-            if(cmd.hasOption("g")) {
+            if (cmd.hasOption("g")) {
                 status.gui = true;
             }
 
-            if(cmd.hasOption("l")) {
+            if (cmd.hasOption("l")) {
                 status.path = cmd.getOptionValue("l");
             }
         } catch (ParseException exc) {

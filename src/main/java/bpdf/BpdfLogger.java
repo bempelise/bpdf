@@ -10,10 +10,10 @@ import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 
 public class BpdfLogger {
-    static private FileHandler fh;
-    static private ConsoleHandler ch;
+    private static FileHandler fh;
+    private static ConsoleHandler ch;
 
-    static public void setup() throws IOException {
+    public static void setup() throws IOException {
         // Remove default handler
         LogManager.getLogManager().reset();
         // get the global logger to configure it

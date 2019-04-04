@@ -1,194 +1,139 @@
-// CompositeFraction.java
 package bpdf.symbol;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.ListIterator;
 
 /**
  * Composite product to support multiplications and divisions with ceilings
  * and floors
  * @author Vagelis Bebelis
  */
-public class CompositeFraction extends CompositeExpression
-{
-
-/******************************************************************************
- ** PRIVATE PARAMETERS
- ******************************************************************************/
-    
-    /**
-     * Numerator / Denominator of the composite fraction
-     */
-    private Expression _num;
-    private Expression _denom;
-
-/******************************************************************************
- ** CONSTRUCTORS
- ******************************************************************************/
-
+public class CompositeFraction extends CompositeExpression {
+    /** Numerator */
+    private Expression m_num;
+    /** Denominator */
+    private Expression m_denom;
 
     /**
      * Main Constructor
      */
-    public CompositeFraction (Expression expr1, Expression expr2)
-    {
-        _num = expr1;
-        _denom = expr2;
+    public CompositeFraction(Expression expr1, Expression expr2) {
+        m_num = expr1;
+        m_denom = expr2;
     }
 
-/******************************************************************************
- ** GETTERS
- ******************************************************************************/
-
-    public Expression getNum()
-    {
-        return _num;
+    public Expression getNum() {
+        return m_num;
     }
 
-    public Expression getDenom()
-    {
-        return _denom;
+    public Expression getDenom() {
+        return m_denom;
     }
 
-/******************************************************************************
- ** MATH FUNCTIONS
- ******************************************************************************/
-
-    public Expression add(Expression expr)
-    {
-        return new CompositePolynomial(this,expr);
+    public Expression add(Expression expr) {
+        return new CompositePolynomial(this, expr);
     }
 
-    public Expression multiply(Expression expr)
-    {
-        return new CompositeProduct(this,expr);
+    public Expression multiply(Expression expr) {
+        return new CompositeProduct(this, expr);
     }
 
-    public Expression divide (Expression expr)
-    {
-        return new CompositeFraction(this,expr);
+    public Expression divide(Expression expr) {
+        return new CompositeFraction(this, expr);
     }
 
-    public Product gcd (Expression expr)
-    {
-        return _num.gcd(expr);
+    public Product gcd(Expression expr) {
+        return m_num.gcd(expr);
     }
 
-    public Expression evaluate(String str, Integer n)
-    {
+    public Expression evaluate(String str, Integer n) {
         Expression evalNum;
         Expression evalDenom;
         boolean ceilOrFloor = false;
 
-        evalNum = _num.evaluate(str,n);
-        if (evalNum.hasFloor() || evalNum.hasCeiling())
+        evalNum = m_num.evaluate(str, n);
+        if (evalNum.hasFloor() || evalNum.hasCeiling()) {
             ceilOrFloor = true;
-        evalDenom = _denom.evaluate(str,n);
-        if (evalDenom.hasFloor() || evalDenom.hasCeiling())
+        }
+        evalDenom = m_denom.evaluate(str, n);
+        if (evalDenom.hasFloor() || evalDenom.hasCeiling()) {
             ceilOrFloor = true;
-        if (ceilOrFloor)
+        }
+        if (ceilOrFloor) {
             return new CompositeProduct(evalNum, evalDenom);
-        else
-        {
-            if (!(evalNum.isFraction() && evalDenom.isFraction()))
+        } else {
+            if (!(evalNum.isFraction() && evalDenom.isFraction())) {
                 return new Fraction(evalNum, evalDenom);
-            else
+            } else {
                 return new CompositeProduct(evalNum, evalDenom);
+            }
         }
     }
 
-    public Expression ceiling ()
-    {
-        throw new RuntimeException ("Cannot get ceiling of composites");
+    public Expression ceiling() {
+        throw new RuntimeException("Cannot get ceiling of composites");
     }
 
-    public Expression floor ()
-    {
-        throw new RuntimeException ("Cannot get floot of composites");
+    public Expression floor() {
+        throw new RuntimeException("Cannot get floot of composites");
     }
 
-/******************************************************************************
- ** PROPERTY CHECK
- ******************************************************************************/
-
-    public boolean isEqualTo(Expression expr)
-    {
+    public boolean isEqualTo(Expression expr) {
         return false;
     }
 
-    public boolean isGreaterThan(Expression expr)
-    {
+    public boolean isGreaterThan(Expression expr) {
         return false;
     }
 
-    public boolean isUnit()
-    {
+    public boolean isUnit() {
         return false;
     }
 
-    public boolean isZero()
-    {
+    public boolean isZero() {
         return false;
     }
 
-    public boolean isProduct()
-    {
+    public boolean isProduct() {
         return false;
     }
 
-    public boolean isFraction()
-    {
+    public boolean isFraction() {
         return false;
     }
 
-    public boolean isNumber()
-    {
+    public boolean isNumber() {
         return false;
     }
 
-    public boolean hasCeiling()
-    {
+    public boolean hasCeiling() {
         return true;
     }
 
-    public boolean hasFloor()
-    {
+    public boolean hasFloor() {
         return true;
     }
 
-/******************************************************************************
- ** TRANSFORMATIONS
- ******************************************************************************/
-
-    public Product getProduct()
-    {
+    public Product getProduct() {
         throw new RuntimeException("Composite Fractions cannot be products");
     }
-    public Fraction getFraction()
-    {
+    public Fraction getFraction() {
         throw new RuntimeException("Composite Fractions cannot be fractions");
     }
 
-    public Polynomial getPolynomial()
-    {
+    public Polynomial getPolynomial() {
         throw new RuntimeException("Composite Fractions cannot be polynomials");
     }
-    public int getNumber()
-    {
+
+    public int getNumber() {
         throw new RuntimeException("Composite Fractions cannot be numbers");
     }
 
-    public String getString()
-    {
-        String res = _num.getString() + "/" + _denom.getString();
+    public String getString() {
+        String res = m_num.getString() + "/" + m_denom.getString();
         return res;
     }
-    
-    public Expression getParam()
-    {
-        Expression numParam = _num.getParam();
-        Expression denomParam = _denom.getParam();
+
+    public Expression getParam() {
+        Expression numParam = m_num.getParam();
+        Expression denomParam = m_denom.getParam();
         return new Fraction(numParam, denomParam);
     }
 }

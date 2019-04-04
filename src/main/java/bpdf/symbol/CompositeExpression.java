@@ -1,15 +1,10 @@
-// CompositeExpression.java
 package bpdf.symbol;
 
 /**
  * Abstract class for composite symbolic expressions
  * @author Vagelis Bebelis
  */
-public abstract class CompositeExpression extends Expression
-{
-/******************************************************************************
- ** MATH FUNCTIONS
- ******************************************************************************/
+public abstract class CompositeExpression extends Expression {
 
     public abstract Expression add(Expression expr);
     public abstract Expression multiply(Expression expr);
@@ -19,11 +14,6 @@ public abstract class CompositeExpression extends Expression
     public abstract Expression evaluate(String str, Integer value);
     public abstract Expression ceiling();
     public abstract Expression floor();
-    
-// /******************************************************************************
-//  ** PROPERTY CHECK
-//  ******************************************************************************/
-
 //     public abstract boolean isEqualTo(Expression expr);
 //     public abstract boolean isGreaterThan(Expression expr);
 //     public abstract boolean isUnit();
@@ -33,10 +23,6 @@ public abstract class CompositeExpression extends Expression
 //     public abstract boolean isNumber();
     public abstract boolean hasCeiling();
     public abstract boolean hasFloor();
-
-// /******************************************************************************
-//  ** TRANSFORMATIONS
-//  ******************************************************************************/
 
     public abstract Product getProduct();
     public abstract Fraction getFraction();

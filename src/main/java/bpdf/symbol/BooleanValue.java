@@ -1,4 +1,3 @@
-// BooleanValue.java
 package bpdf.symbol;
 
 import java.util.Set;
@@ -9,39 +8,15 @@ import java.util.HashSet;
  * boolean value / parameter.
  * @author Vagelis Bebelis
  */
-public class BooleanValue extends BooleanExpression
-{
-/******************************************************************************
- ** PRIVATE PARAMETERS
- ******************************************************************************/
-
-    /*
-     * The boolean parameter in string format. In case of always true / false
-     * values the string is set to tt and ff equivalently.
-     */
-    private String param;
-
-    /**
-     * The value of the boolean parameter.
-     */
-    private boolean value;
-
-    /**
-     * Boolean value indicating whether the boolean parameter has taken a value
-     * or not.
-     */
-    private boolean isSet = false;
-
-    /**
-     * Boolean value indicating whether the boolean value is negated or not.
-     * Used to capture the boolean not operation.
-     */
-    private boolean not = false;
-
-
-/******************************************************************************
- ** CONSTRUCTORS
- ******************************************************************************/
+public class BooleanValue extends BooleanExpression {
+    /** Parameter name. Always true (false) sets to 'tt' ('ff') */
+    private String m_param;
+    /** Value of the boolean parameter. */
+    private boolean m_value;
+    /** The boolean parameter has taken a value */
+    private boolean m_isSet = false;
+    /** Not operator */
+    private boolean m_not = false;
 
     /**
      * Main constructor based on a string. The '!' character is parsed for
@@ -49,45 +24,35 @@ public class BooleanValue extends BooleanExpression
      * of true and false equivalently.
      * @param p The string that is the name of the boolean parameter.
      */
-    public BooleanValue(String p)
-    {
-        if (p.charAt(0) == '!')
-        {
-            param = p.substring(1);
-            not = true;
+    public BooleanValue(String p) {
+        if (p.charAt(0) == '!') {
+            m_param = p.substring(1);
+            m_not = true;
+        } else {
+            m_param = p;
         }
-        else
-            param = p;
-        
-        if (p.equals("tt"))
-            setValue(param,true);
-        else if (p.equals("ff"))
-            setValue(param,false);
-    }
 
+        if (p.equals("tt")) {
+            setValue(m_param, true);
+        } else if (p.equals("ff")) {
+            setValue(m_param, false);
+        }
+    }
 
     /**
      * Constructor creating a boolean constant of true or false. The param is
-     * set to tt and ff equivalently. 
+     * set to tt and ff equivalently.
      * @param The boolean value of this expression.
      */
-    public BooleanValue(boolean bool)
-    {
-        if (bool)
-        {
-            param = "tt";
-            setValue(param,true);
-        }
-        else
-        {
-            param = "ff";
-            setValue(param,false);
+    public BooleanValue(boolean bool) {
+        if (bool) {
+            m_param = "tt";
+            setValue(m_param, true);
+        } else {
+            m_param = "ff";
+            setValue(m_param, false);
         }
     }
-
-/******************************************************************************
- ** GET / SET BOOLEAN VALUE
- ******************************************************************************/
 
     /**
      * Method setting the value of the given boolean parameter to the given.
@@ -96,12 +61,10 @@ public class BooleanValue extends BooleanExpression
      * @return Returns true if this boolean value contained the given boolean
      * parameter and set its value. Returns false if the there was no effect.
      */
-    public boolean setValue(String p, boolean bool)
-    {
-        if (param.equals(p))
-        {
-            value = bool;
-            isSet = true;
+    public boolean setValue(String p, boolean bool) {
+        if (m_param.equals(p)) {
+            m_value = bool;
+            m_isSet = true;
             return true;
         }
         return false;
@@ -111,61 +74,56 @@ public class BooleanValue extends BooleanExpression
      * Returns the value of the boolean expression.
      * @return The boolean value of this boolean expression.
      */
-    public boolean getValue()
-    {
-        if (isSet)
-            if (not)
-                return !value;
-            else
-                return value;
-        else
-            throw new RuntimeException ("Boolean value of " 
-                + param + " is not set");
+    public boolean getValue() {
+        if (m_isSet) {
+            if (m_not) {
+                return !m_value;
+            }
+            return m_value;
+        } else {
+            throw new RuntimeException ("Boolean value of " + m_param + " is not set");
+        }
     }
 
     /**
      * Returns true if the boolean parameter is set.
      * @return True if the boolean parameter is set.
      */
-    public boolean isSet()
-    {
-        return isSet;
+    public boolean isSet() {
+        return m_isSet;
     }
 
     /**
      * Returns a set of string indicating the names of the boolean parameters
      * used in the current boolean expression.
      */
-    public Set<String> getParam()
-    {
+    public Set<String> getParam() {
         Set<String> params = new HashSet<String>();
-        if ((!param.equals("tt")) && (!param.equals("ff")))
-            params.add(param);
+        if ((!m_param.equals("tt")) && (!m_param.equals("ff")))
+            params.add(m_param);
         return params;
     }
-
-/******************************************************************************
- ** AUXILIARY
- ******************************************************************************/
 
     /**
      * Prints the boolean expression. Auxiliary function, used to debug.
      */
-    public void print()
-    {
-        if (not) System.out.print("!");
-        System.out.println(param);
+    public void print() {
+        if (m_not) {
+            System.out.print("!");
+        }
+        System.out.println(m_param);
     }
 
     /**
      * Returns the boolean expression in String format. Used for debugging.
      * @return The current expression in String format.
      */
-    public String getString()
-    {
+    public String getString() {
         String res = "";
-        if (not) res += "!";
-        res += param;
+        if (m_not) {
+            res += "!";
+        }
+        res += m_param;
         return res;
     }
 }

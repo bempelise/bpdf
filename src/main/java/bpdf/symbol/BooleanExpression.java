@@ -1,4 +1,3 @@
-// BooleanExpression.java
 package bpdf.symbol;
 
 import java.util.Set;
@@ -8,8 +7,7 @@ import java.util.Set;
  * in subclasses BooleanComposite and BooleanValue.
  * @author Vagelis Bebelis
  */
-public abstract class BooleanExpression
-{
+public abstract class BooleanExpression {
     public abstract boolean setValue(String param, boolean bool);
     public abstract boolean getValue();
     public abstract boolean isSet();

@@ -1,18 +1,15 @@
 // NonSlottedScheduler.java
 package bpdf.scheduling;
 
-import bpdf.graph.*;
-import bpdf.symbol.*;
+import bpdf.graph.BPDFGraph;
+import bpdf.graph.BPDFActor;
+import bpdf.symbol.Expression;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Random;
-
 
 /**
  * The dynamic scheduler. Gets as input a set of constraints, a set of actors
@@ -21,116 +18,96 @@ import java.util.Random;
  * single iteration.
  * @author Vagelis Bebelis
  */
-public class NonSlottedScheduler extends Scheduler
-{
-/******************************************************************************
- ** CONSTRUCTORS
- ******************************************************************************/
+public class NonSlottedScheduler extends Scheduler {
+    /** Active vector. Holds actor name, active or not. */
+    private Map<String, Boolean> m_actVector = new HashMap<String, Boolean>();
+    /** Boolean that keep track of schedule progress (to remove?) */
+    private boolean m_advance = false;
 
-    /**
-     *  Constructor
-     */
-    public NonSlottedScheduler(){}
+    /** *  Constructor */
+    public NonSlottedScheduler() { }
 
-    public NonSlottedScheduler(BPDFGraph g, Map<String, Integer> intMap, 
-        Map<String,String> boolMap)
-    {
+    public NonSlottedScheduler(BPDFGraph g,
+                               Map<String, Integer> intMap,
+                               Map<String, String> boolMap) {
         super(g, intMap, boolMap);
     }
-
-/******************************************************************************
- ** SCHEDULER
- ******************************************************************************/
 
     /**
      * Executes one iteration of the graph in slots.
      */
     @Override
-    public int getSchedule()
-    {
+    public int getSchedule() {
         // Initialize
-        Set<String> keySet = _repVector.keySet();
-        for (String key : keySet)
-        {
-            _stVector.put(key,0);
-            _actVector.put(key,false);
+        Set<String> keySet = p_repVector.keySet();
+        for (String key : keySet) {
+            p_stVector.put(key, 0);
+            m_actVector.put(key, false);
         }
-            
 
         // First slot
         advance();
 
         // Rest of the slots
-        while(_advance)
-        {
-            _advance = false;
+        while (m_advance) {
+            m_advance = false;
             advance();
         }
-
-        return _totalTime;
+        return p_totalTime;
     }
 
 
-    private void advance()
-    {
+    private void advance() {
         List<BPDFActor> fireables = new ArrayList<BPDFActor>();
         fireables = getSlot();
         updateBoolean(fireables);
         updateActive(fireables);
-        _slot++;
+        p_slot++;
         printActiveSlot(fireables);
         updateTime(fireables);
     }
 
-/******************************************************************************
- ** SCHEDULER AUXILIARIES
- ******************************************************************************/
-    
     /**
-     * Schedules a slot. Evaluates constraints and returns a list of 
+     * Schedules a slot. Evaluates constraints and returns a list of
      * fireable actors.
      * @return The list of fireable actors in the current slot.
      */
-    private List<BPDFActor> getSlot()
-    {
+    private List<BPDFActor> getSlot() {
         List<BPDFActor> fireables = new ArrayList<BPDFActor>();
 
-        for (BPDFActor actor : _actorList)
-        {
+        for (BPDFActor actor : p_actorList) {
             String name = actor.getName();
-            boolean isActive = (boolean)_actVector.get(name);
-            if (!isActive)
-            {
+            boolean isActive = m_actVector.get(name);
+            if (!isActive) {
                 List<BPDFConstraint> actorCons = getConstraints(actor);
-                int status = (int) _stVector.get(name);            
-                Expression solution = (Expression) _repVector.get(name);
+                int status = p_stVector.get(name);
+                Expression solution = p_repVector.get(name);
                 int sol = solution.getNumber();
-                
-                if (status == sol) continue;
-                if (status >= sol) throw new RuntimeException(
-                    "Actor has been fired over the solution!");
-                
+
+                if (status == sol) {
+                    continue;
+                }
+                if (status >= sol) {
+                    throw new RuntimeException("Actor has been fired over the solution!");
+                }
+
                 boolean fire = true;
-                for (BPDFConstraint cons : actorCons)
-                {
+                for (BPDFConstraint cons : actorCons) {
                     BPDFActor right = cons.getDepActor();
-                    int rightFired = (int) _stVector.get(right.getName());
+                    int rightFired = (int) p_stVector.get(right.getName());
                     int leftFire = status + 1;
                     int neededFirings = cons.evaluate(leftFire);
 
-                    // System.out.println(name + "(" + leftFire + "): "
-                    //     + right.getName() + "(" + neededFirings + ") <= "
-                    //     + right.getName() + "(" + rightFired + ")");
-
                     // if guard not set OR not enough firings
-                    if ((neededFirings < 0) || (rightFired < neededFirings))
-                    {
+                    if ((neededFirings < 0) || (rightFired < neededFirings)) {
                         fire = false;
                         break;
                     }
                 }
-                if (fire) fireables.add(actor);
-            }   
+                if (fire) {
+                    fireables.add(actor);
+                }
+            }
         }
         return fireables;
     }
@@ -141,13 +118,11 @@ public class NonSlottedScheduler extends Scheduler
      * @param The list of the actors to be fired (and therefore printed)
      * in the slot.
      */
-    private void updateStatus(List<BPDFActor> fireables)
-    {
-        for (BPDFActor actor : fireables)
-        {
+    private void updateStatus(List<BPDFActor> fireables) {
+        for (BPDFActor actor : fireables) {
             String name = actor.getName();
-            int status = (int) _stVector.get(name);
-            _stVector.put(name,status + 1);
+            int status = p_stVector.get(name);
+            p_stVector.put(name, status + 1);
         }
     }
 
@@ -157,73 +132,65 @@ public class NonSlottedScheduler extends Scheduler
      * periods.
      * @param fireables The actors eligible to fire
      */
-    private void updateBoolean(List<BPDFActor> fireables)
-    {
+    private void updateBoolean(List<BPDFActor> fireables) {
         List<String> paramToModify = new ArrayList<String>();
 
         // Find which parameters will change values
-        for (BPDFActor actor : fireables)
-        {
-            if (actor.isModifier())
-            {
+        for (BPDFActor actor : fireables) {
+            if (actor.isModifier()) {
                 List<String> params = new ArrayList<String>();
-                int st = (int) _stVector.get(actor.getName());
+                int st = (int) p_stVector.get(actor.getName());
                 params = actor.canModify(st);
                 paramToModify.addAll(params);
             }
         }
 
         // Propagate the new values tos all the users.
-        for (String param : paramToModify)
-        {
+        for (String param : paramToModify) {
             boolean value = nextValue(param);
-            for (BPDFConstraint cons : _constraints)
-                cons.setParam(param,value);
+            for (BPDFConstraint cons : p_constraints) {
+                cons.setParam(param, value);
+            }
         }
     }
 
     /**
      *
      */
-    private void updateTime(List<BPDFActor> fireables)
-    {
+    private void updateTime(List<BPDFActor> fireables) {
         int min = getMinTime(fireables);
-        Set<String> keySet = _actVector.keySet();
-        for (String name : keySet)
-        {
-            boolean isActive = (boolean) _actVector.get(name);
-            if (isActive)
-            {
+        Set<String> keySet = m_actVector.keySet();
+        for (String name : keySet) {
+            boolean isActive = m_actVector.get(name);
+            if (isActive) {
                 BPDFActor actor = getActor(name);
-                int status = (int) _stVector.get(name);
+                int status = p_stVector.get(name);
                 int remain = 0;
-                if (isActive(actor,status))
+                if (isActive(actor, status)) {
                     remain = actor.advanceTime(min);
-                else
-                {
+                } else {
                     remain = 10 - min;
-                    assert(remain == 0);
+                    assert (remain == 0);
                 }
-                
-                if (remain == 0)
-                {
-                    _stVector.put(name,status + 1);
-                    _actVector.put(name,false);
-                    _advance = true;
+
+                if (remain == 0) {
+                    p_stVector.put(name, status + 1);
+                    m_actVector.put(name, false);
+                    m_advance = true;
                 }
             }
         }
-        if (min < 0) min = 0;
-        _slotMax = min;
-        _totalTime += min;
+        if (min < 0) {
+            min = 0;
+        }
+        p_slotMax = min;
+        p_totalTime += min;
     }
 
-    private void updateActive(List<BPDFActor> fireables)
-    {
-        for (BPDFActor actor : fireables)
-        {
+    private void updateActive(List<BPDFActor> fireables) {
+        for (BPDFActor actor : fireables) {
             String name = actor.getName();
-            _actVector.put(name,true);
+            m_actVector.put(name, true);
         }
     }
 
@@ -232,39 +199,34 @@ public class NonSlottedScheduler extends Scheduler
      * total time.
      * @param fireables The list of actors eligible to fire.
      */
-    private void getTiming(List<BPDFActor> fireables)
-    {
-        
-        _slotMax = getMaxTime(fireables);
-        _totalTime += _slotMax;
+    private void getTiming(List<BPDFActor> fireables) {
+        p_slotMax = getMaxTime(fireables);
+        p_totalTime += p_slotMax;
     }
 
     /**
      *
      */
-    private int getMaxTime(List<BPDFActor> fireables)
-    {
+    private int getMaxTime(List<BPDFActor> fireables) {
         int max = 0;
-        for(BPDFActor actor : fireables)
-        {
+        for (BPDFActor actor : fireables) {
             String name = actor.getName();
-            int status = (int) _stVector.get(name);
+            int status = p_stVector.get(name);
             // Check if the actor is disconnected
             boolean active = false;
-            for (BPDFConstraint cons : getDataConstraints(actor))
-            {
-                if (cons.isSet(status))
-                {
-                    if (cons.getGuardValue(status))
-                    {
+            for (BPDFConstraint cons : getDataConstraints(actor)) {
+                if (cons.isSet(status)) {
+                    if (cons.getGuardValue(status)) {
                         active = true; break;
                     }
                 }
             }
-            if (active)
-                max = Math.max(actor.getTime(),max);
-            else
-                max = Math.max(10,max);
+            if (active) {
+                max = Math.max(actor.getTime(), max);
+            }
+            else {
+                max = Math.max(10, max);
+            }
         }
         return max;
     }
@@ -272,59 +234,46 @@ public class NonSlottedScheduler extends Scheduler
     /**
      *
      */
-    private int getMinTime(List<BPDFActor> fireables)
-    {
+    private int getMinTime(List<BPDFActor> fireables) {
         int min = -1;
-        Set<String> keySet = _repVector.keySet();
-        for (String name : keySet)
-        {
-            boolean isActive = (boolean) _actVector.get(name);
-            if (isActive)
-            {
+        Set<String> keySet = p_repVector.keySet();
+        for (String name : keySet) {
+            boolean isActive = m_actVector.get(name);
+            if (isActive) {
                 int time;
                 BPDFActor actor = getActor(name);
-                int status = (int) _stVector.get(name);
-                
-                if (isActive(actor,status))
-                    time = actor.getTime();
-                else
-                    time = 10;
+                int status = p_stVector.get(name);
 
-                if (min < 0)
+                if (isActive(actor, status)) {
+                    time = actor.getTime();
+                } else {
+                    time = 10;
+                }
+
+                if (min < 0) {
                     min = time;
-                else
+                } else {
                     min = Math.min(time,min);
+                }
             }
         }
         return min;
     }
 
-
-
-/******************************************************************************
- ** AUXILIARY METHODS
- ******************************************************************************/
-
-
-    private BPDFActor getActor(String name)
-    {
-        for(BPDFActor actor : _actorList)
-        {
-            if (actor.getName().equals(name))
+    private BPDFActor getActor(String name) {
+        for (BPDFActor actor : p_actorList) {
+            if (actor.getName().equals(name)) {
                 return actor;
+            }
         }
         return null;
     }
 
-    private boolean isActive(BPDFActor actor, int st)
-    {
+    private boolean isActive(BPDFActor actor, int st) {
         boolean active = false;
-        for (BPDFConstraint cons : getDataConstraints(actor))
-        {
-            if (cons.isSet(st))
-            {
-                if (cons.getGuardValue(st))
-                {
+        for (BPDFConstraint cons : getDataConstraints(actor)) {
+            if (cons.isSet(st)) {
+                if (cons.getGuardValue(st)) {
                     active = true; break;
                 }
             }
@@ -332,13 +281,13 @@ public class NonSlottedScheduler extends Scheduler
         return active;
     }
 
-    private boolean noActive()
-    {
-        Set<String> keySet = _actVector.keySet();
-        for (String name : keySet)
-        {
-            boolean isActive = (boolean) _actVector.get(name);
-            if (isActive) return false;
+    private boolean noActive() {
+        Set<String> keySet = m_actVector.keySet();
+        for (String name : keySet) {
+            boolean isActive = (boolean) m_actVector.get(name);
+            if (isActive) {
+                return false;
+            }
         }
         return true;
     }
@@ -347,31 +296,26 @@ public class NonSlottedScheduler extends Scheduler
      * Prints the given list of actors in a slotted manner.
      * @param fireables The list of actors eligible to fire in the current slot.
      */
-    private void printSlot(List<BPDFActor> fireables)
-    {
-        if (!fireables.isEmpty())
-        {
-            System.out.print(_slot + ": ");
-            for (BPDFActor actor : fireables)
-            {
+    private void printSlot(List<BPDFActor> fireables) {
+        if (!fireables.isEmpty()) {
+            System.out.print(p_slot + ": ");
+            for (BPDFActor actor : fireables) {
                 System.out.print(actor.getName() + " | ");
             }
-            System.out.print("\t\t Max: " + _slotMax);
+            System.out.print("\t\t Max: " + p_slotMax);
             System.out.println("");
         }
     }
 
-    private void printActiveSlot(List<BPDFActor> fireables)
-    {
-        System.out.print(_slot + ": ");
-        Set<String> keySet = _actVector.keySet();
-        for (String name : keySet)
-        {
-            boolean isActive = (boolean) _actVector.get(name);
-            if (isActive)
+    private void printActiveSlot(List<BPDFActor> fireables) {
+        System.out.print(p_slot + ": ");
+        Set<String> keySet = m_actVector.keySet();
+        for (String name : keySet) {
+            boolean isActive = (boolean) m_actVector.get(name);
+            if (isActive) {
                 System.out.print(name + " | ");
+            }
         }
-        // System.out.print("\t\t Min: " + getMinTime(fireables));
         System.out.println("");
     }
 }
