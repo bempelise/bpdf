@@ -4,6 +4,8 @@ import bpdf.graph.BPDFGraph;
 import bpdf.graph.BPDFGui;
 import java.io.File;
 import java.util.logging.Logger;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class BpdfManager {
     private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -34,6 +36,23 @@ public class BpdfManager {
     }
 
     private void launchgui() {
+        try {
+            // Set System L&F
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (UnsupportedLookAndFeelException e) {
+            LOG.severe(e.getMessage());
+        }
+        catch (ClassNotFoundException e) {
+            LOG.severe(e.getMessage());
+        }
+        catch (InstantiationException e) {
+            LOG.severe(e.getMessage());
+        }
+        catch (IllegalAccessException e) {
+            LOG.severe(e.getMessage());
+        }
+
         m_gui = new BPDFGui();
         Thread t = new Thread(m_gui, "GUI");
         t.start();
