@@ -1,6 +1,5 @@
 package bpdf.gui;
 
-import bpdf.auxiliary.SpringUtilities;
 import bpdf.scheduling.NonSlottedScheduler;
 import bpdf.scheduling.Scheduler;
 import bpdf.scheduling.SlottedScheduler;
@@ -30,7 +29,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -40,8 +38,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.JTextField;
-import javax.swing.SpringLayout;
 
 public class BPDFGui extends JFrame implements ActionListener, Runnable {
     private static final long serialVersionUID = 8543000000000001001L;
@@ -54,7 +50,7 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
     private JPanel leftPanel;
     private JPanel rightPanel;
     private IntegerOptionsPanel intPanel;
-    private JPanel boolPanel;
+    private BooleanOptionsPanel boolPanel;
     private SchedulerOptionsPanel schedPanel;
     private JButton run = new JButton("Run!");
     // settings
@@ -79,16 +75,8 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
     }
 
     public void run() {
-        // Integer Parameter Panel
         intPanel = new IntegerOptionsPanel(this);
-
-
-        // Boolean Parameter Panel
-        boolPanel = new JPanel();
-        boolPanel.setBorder(
-            BorderFactory.createTitledBorder("Boolean Parameters"));
-        makeEmptyPanel(boolPanel);
-
+        boolPanel = new BooleanOptionsPanel(this);
         schedPanel = new SchedulerOptionsPanel(this);
 
 
@@ -103,16 +91,14 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
         // Right panel
         rightPanel = new JPanel();
         rightPanel.setMinimumSize(minimumSize);
-        rightPanel.setLayout(
-            new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
         rightPanel.add(intPanel);
         rightPanel.add(boolPanel);
         rightPanel.add(schedPanel);
         rightPanel.add(run);
 
         // Horizontal Splitbar
-        splitPane = new JSplitPane(
-            JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
         splitPane.setResizeWeight(0.8);
         splitPane.setOneTouchExpandable(true);
         splitPane.setContinuousLayout(true);
@@ -146,63 +132,6 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
         JMenuItem m = new JMenuItem(name);
         m.addActionListener(this);
         return m;
-    }
-
-    private JPanel makeEmptyPanel(JPanel panel) {
-        panel.setLayout(new SpringLayout());
-        JLabel label = new JLabel("No Parameters");
-        label.setEnabled(false);
-        panel.add(label);
-        SpringUtilities.makeCompactGrid(panel,
-            1, 1,               // rows, cols
-            5, 5,               // initX, initY
-            5, 5);              // xPad, yPad
-        return panel;
-    }
-
-
-    private JPanel makeBoolPanel(JPanel panel, Set<String> set) {
-        panel.removeAll();
-
-        if (set.size() == 0) {
-            panel = makeEmptyPanel(panel);
-        } else {
-            SpringLayout layout = new SpringLayout();
-            panel.setLayout(layout);
-
-            for (String s : set) {
-                // init value
-                boolMap.put(s, "*");
-                // label
-                JLabel label = new JLabel(s);
-                panel.add(label);
-                // textfield
-                final JTextField text = new JTextField("*", 10);
-                label.setLabelFor(text);
-                text.setMaximumSize(text.getPreferredSize());
-                text.getDocument().putProperty("param", s);
-                text.getDocument().addDocumentListener(new DocumentListener() {
-                    public void changedUpdate(DocumentEvent e) {
-                        // updateBoolean(e,text);
-                    }
-                    public void removeUpdate(DocumentEvent e) {
-                        updateBoolean(e, text);
-                    }
-                    public void insertUpdate(DocumentEvent e) {
-                        updateBoolean(e, text);
-                    }
-                });
-                text.setActionCommand("bool" + s);
-                text.addActionListener(this);
-                panel.add(text);
-            }
-
-            SpringUtilities.makeCompactGrid(panel,
-                set.size(), 2,      // rows, cols
-                5, 5,               // initX, initY
-                5, 5);              // xPad, yPad
-        }
-        return panel;
     }
 
     private JPanel makeBoolValuePanel(JPanel panel) {
@@ -256,8 +185,9 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
         leftPanel.add(graphComponent);
 
         intPanel.refresh(funcGraph.getIntParamSet());
+        boolPanel.refresh(funcGraph.getBoolParamSet());
         // makeIntPanel(intPanel, funcGraph.getIntParamSet());
-        makeBoolPanel(boolPanel, funcGraph.getBoolParamSet());
+        // makeBoolPanel(boolPanel, funcGraph.getBoolParamSet());
 
         this.repaint();
         this.revalidate();
@@ -328,22 +258,6 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
     }
 
 
-    private void updateBoolean(DocumentEvent event, JTextField text) {
-        String value = text.getText();
-        String param = (String) event.getDocument().getProperty("param");
-
-        if (text.getText().length() > 0) {
-            if (value.matches("[*01]+")) {
-                boolMap.put(param, value);
-            } else {
-                JOptionPane.showMessageDialog(((JFrame) this),
-                                              "Use 0 (false), 1(true) or * (random)",
-                                              "Invalid Boolean Value",
-                                              JOptionPane.WARNING_MESSAGE);
-            }
-        }
-    }
-
 /********************************************************************
  ** ACTION LISTENER
  ********************************************************************/
@@ -374,19 +288,11 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
             if (currentFile != null) {
                 liveCheck(true);
             }
-        // Parameter Set Up
-        } else if (command.startsWith("bool")) {
-            // Correct values
-            String param = command.substring(4, command.length());
-            ((JTextField) e.getSource()).setText(boolMap.get(param));
-        // } else if (command.startsWith("int")) {
-        //     // Correct values
-        //     String param = command.substring(3, command.length());
-        //     ((JTextField) e.getSource()).setText(String.valueOf(intMap.get(param)));
         } else if (command.equals("run")) {
             if (currentFile != null) {
                 BPDFGraph runGraph = new BPDFGraph(new DslParser(currentFile));
                 Map<String, Integer> intMap = intPanel.getParams();
+                Map<String, String> boolMap = boolPanel.getParams();
 
                 switch (schedPanel.getScheduleType()) {
                     case SLOTTED:
@@ -482,7 +388,3 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
     //     }
     // }
 }
-
-
-
-

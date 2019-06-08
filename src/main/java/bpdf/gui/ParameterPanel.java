@@ -40,16 +40,8 @@ public class ParameterPanel extends JPanel implements DocumentListener {
                                               5, 5); // xPad, yPad
     }
 
-    public Pair<String, Integer> getParam() {
-        try {
-            System.out.println("Value: " + m_value);
-            return new Pair<String, Integer>(m_name, Integer.parseInt(m_value));
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(m_parent, "Please enter an integer value",
-                                                    "Illegal Integer Value",
-                                                    JOptionPane.WARNING_MESSAGE);
-        }
-        return null;
+    public Pair<String, String> getParam() {
+        return new Pair<String, String>(m_name, m_value);
     }
 
     public void changedUpdate(DocumentEvent e) {
