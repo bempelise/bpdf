@@ -1,9 +1,14 @@
-package bpdf.graph;
+package bpdf.gui;
 
 import bpdf.auxiliary.SpringUtilities;
 import bpdf.scheduling.NonSlottedScheduler;
 import bpdf.scheduling.Scheduler;
 import bpdf.scheduling.SlottedScheduler;
+import bpdf.graph.DslParser;
+import bpdf.graph.BPDFGraph;
+import bpdf.graph.BPDFEdge;
+import bpdf.graph.BPDFActor;
+import bpdf.graph.FileHandler;
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
@@ -39,8 +44,7 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
 public class BPDFGui extends JFrame implements ActionListener, Runnable {
-    // gui
-    private static final long serialVersionUID = 1568196732681655874L;
+    private static final long serialVersionUID = 8543000000000001001L;
     // menu
     private JMenu fileMenu;
     private JMenu analysisMenu;
@@ -49,9 +53,9 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
     private JSplitPane splitPane;
     private JPanel leftPanel;
     private JPanel rightPanel;
-    private JPanel intPanel;
+    private IntegerOptionsPanel intPanel;
     private JPanel boolPanel;
-    private JPanel schedPanel;
+    private SchedulerOptionsPanel schedPanel;
     private JButton run = new JButton("Run!");
     // settings
     private Dimension minimumSize = new Dimension(10, 10);
@@ -61,7 +65,7 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
     // content
     private BPDFGraph funcGraph = new BPDFGraph();
     private mxGraph visGraph = new mxGraph();
-    private Map<String, Integer> intMap = new HashMap<String, Integer>();
+    // private Map<String, Integer> intMap = new HashMap<String, Integer>();
     private Map<String, String> boolMap = new HashMap<String, String>();
     private Scheduler scheduler = new SlottedScheduler();
 
@@ -69,12 +73,15 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
         super("Boolean Parametric Data Flow");
     }
 
+    public BPDFGui(File file) {
+        super("Boolean Parametric Data Flow");
+        makeGraph(file);
+    }
+
     public void run() {
         // Integer Parameter Panel
-        intPanel = new JPanel();
-        intPanel.setBorder(
-            BorderFactory.createTitledBorder("Integer Parameters"));
-        makeEmptyPanel(intPanel);
+        intPanel = new IntegerOptionsPanel(this);
+
 
         // Boolean Parameter Panel
         boolPanel = new JPanel();
@@ -82,11 +89,8 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
             BorderFactory.createTitledBorder("Boolean Parameters"));
         makeEmptyPanel(boolPanel);
 
-        // Scheduler Panel
-        schedPanel = new JPanel();
-        schedPanel.setBorder(
-            BorderFactory.createTitledBorder("Scheduler Options"));
-        makeSchedPanel(schedPanel);
+        schedPanel = new SchedulerOptionsPanel(this);
+
 
         // Run Button
         run.setActionCommand("run");
@@ -156,49 +160,6 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
         return panel;
     }
 
-    private JPanel makeIntPanel(JPanel panel, Set<String> set) {
-        panel.removeAll();
-
-        if (set.size() == 0) {
-            panel = makeEmptyPanel(panel);
-        } else {
-            SpringLayout layout = new SpringLayout();
-            panel.setLayout(layout);
-
-            for (String s : set) {
-                // init value
-                intMap.put(s, 1);
-                // label
-                JLabel label = new JLabel(s);
-                // textfield
-                panel.add(label);
-                final JTextField text = new JTextField("1", 10);
-                label.setLabelFor(text);
-                text.setMaximumSize(text.getPreferredSize());
-                text.getDocument().putProperty("param", s);
-                text.getDocument().addDocumentListener(new DocumentListener() {
-                    public void changedUpdate(DocumentEvent e) {
-                        // updateInteger(e,text);
-                    }
-                    public void removeUpdate(DocumentEvent e) {
-                        updateInteger(e, text);
-                    }
-                    public void insertUpdate(DocumentEvent e) {
-                        updateInteger(e, text);
-                    }
-                });
-                text.setActionCommand("int" + s);
-                text.addActionListener(this);
-                panel.add(text);
-            }
-
-            SpringUtilities.makeCompactGrid(panel,
-                set.size(), 2,      // rows, cols
-                5, 5,               // initX, initY
-                5, 5);              // xPad, yPad
-        }
-        return panel;
-    }
 
     private JPanel makeBoolPanel(JPanel panel, Set<String> set) {
         panel.removeAll();
@@ -244,20 +205,6 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
         return panel;
     }
 
-    private JPanel makeSchedPanel(JPanel panel) {
-        String schedOptions[] = {"slotted", "non slotted"};
-        JComboBox<String> cbSched = new JComboBox<>(schedOptions);
-        cbSched.setEditable(false);
-        cbSched.setMaximumSize(cbSched.getPreferredSize());
-        cbSched.setActionCommand("schedSelect");
-        cbSched.addActionListener(this);
-        panel.add(cbSched);
-        actionPerformed(new ActionEvent(cbSched,
-                                        ActionEvent.ACTION_PERFORMED,
-                                        "schedSelect"));
-        return panel;
-    }
-
     private JPanel makeBoolValuePanel(JPanel panel) {
         JButton gen = new JButton("Generate");
         gen.setActionCommand("generate");
@@ -276,8 +223,7 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
 
     private void makeGraph(File file) {
         visGraph = new mxGraph();
-        funcGraph = new BPDFGraph(file);
-        funcGraph.verifyGraph();
+        funcGraph = new BPDFGraph(new DslParser(file));
 
         Object parent = visGraph.getDefaultParent();
         visGraph.getModel().beginUpdate();
@@ -309,7 +255,8 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
         leftPanel.removeAll();
         leftPanel.add(graphComponent);
 
-        makeIntPanel(intPanel, funcGraph.getIntParamSet());
+        intPanel.refresh(funcGraph.getIntParamSet());
+        // makeIntPanel(intPanel, funcGraph.getIntParamSet());
         makeBoolPanel(boolPanel, funcGraph.getBoolParamSet());
 
         this.repaint();
@@ -380,20 +327,6 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
         return true;
     }
 
-    private void updateInteger(DocumentEvent event, JTextField text) {
-        if (text.getText().length() > 0) {
-            try {
-                int value = Integer.parseInt(text.getText());
-                String param = (String) event.getDocument().getProperty("param");
-                intMap.put(param, value);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(((JFrame) this),
-                                              "Please enter an integer value",
-                                              "Illegal Integer Value",
-                                              JOptionPane.WARNING_MESSAGE);
-            }
-        }
-    }
 
     private void updateBoolean(DocumentEvent event, JTextField text) {
         String value = text.getText();
@@ -446,22 +379,24 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
             // Correct values
             String param = command.substring(4, command.length());
             ((JTextField) e.getSource()).setText(boolMap.get(param));
-        } else if (command.startsWith("int")) {
-            // Correct values
-            String param = command.substring(3, command.length());
-            ((JTextField) e.getSource()).setText(String.valueOf(intMap.get(param)));
-        // Scheduler Set Up
-        } else if (command.equals("schedSelect")) {
-            sched = ((JComboBox) e.getSource()).getSelectedIndex();
+        // } else if (command.startsWith("int")) {
+        //     // Correct values
+        //     String param = command.substring(3, command.length());
+        //     ((JTextField) e.getSource()).setText(String.valueOf(intMap.get(param)));
         } else if (command.equals("run")) {
             if (currentFile != null) {
-                BPDFGraph runGraph = new BPDFGraph(currentFile);
-                runGraph.verifyGraph();
+                BPDFGraph runGraph = new BPDFGraph(new DslParser(currentFile));
+                Map<String, Integer> intMap = intPanel.getParams();
 
-                if (sched == 0) {
-                    scheduler = new SlottedScheduler(runGraph, intMap, boolMap);
-                } else {
-                    scheduler = new NonSlottedScheduler(runGraph, intMap, boolMap);
+                switch (schedPanel.getScheduleType()) {
+                    case SLOTTED:
+                        scheduler = new SlottedScheduler(runGraph, intMap, boolMap);
+                        break;
+                    case NON_SLOTTED:
+                        scheduler = new NonSlottedScheduler(runGraph, intMap, boolMap);
+                        break;
+                    default:
+                    break;
                 }
 
                 int cycles = scheduler.getSchedule();
@@ -527,25 +462,25 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
         }
     }
 
-    private void printOptions() {
-        Set<String> intParams = intMap.keySet();
+    // private void printOptions() {
+    //     Set<String> intParams = intMap.keySet();
 
-        for (String s : intParams) {
-            System.out.println("Integer " + s + " set to " + intMap.get(s));
-        }
+    //     for (String s : intParams) {
+    //         System.out.println("Integer " + s + " set to " + intMap.get(s));
+    //     }
 
-        Set<String> boolParams = boolMap.keySet();
+    //     Set<String> boolParams = boolMap.keySet();
 
-        for (String s : boolParams) {
-            System.out.println("Boolean " + s + " set to " + boolMap.get(s));
-        }
+    //     for (String s : boolParams) {
+    //         System.out.println("Boolean " + s + " set to " + boolMap.get(s));
+    //     }
 
-        if (sched == 0) {
-            System.out.println("Using a Slotted Scheduler");
-        } else {
-            System.out.println("Using a Non-Slotted Scheduler");
-        }
-    }
+    //     if (sched == 0) {
+    //         System.out.println("Using a Slotted Scheduler");
+    //     } else {
+    //         System.out.println("Using a Non-Slotted Scheduler");
+    //     }
+    // }
 }
 
 

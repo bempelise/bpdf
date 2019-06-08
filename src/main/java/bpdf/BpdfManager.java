@@ -1,7 +1,8 @@
 package bpdf;
 
 import bpdf.graph.BPDFGraph;
-import bpdf.graph.BPDFGui;
+import bpdf.gui.BPDFGui;
+import bpdf.graph.DslParser;
 import java.io.File;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
@@ -23,10 +24,7 @@ public class BpdfManager {
             m_file = new File(m_status.path);
             if (m_file.isFile()) {
                 m_status.isSet = true;
-                m_graph = new BPDFGraph(m_file);
-                m_status.isConsistent = m_graph.isConsistent();
-                m_status.isLive = m_graph.isLive();
-                m_status.isSafe = m_graph.isSafe();
+                m_graph = new BPDFGraph(new DslParser(m_file));
             } else {
                 LOG.warning("File " + m_status.path + " not found");
             }
@@ -52,7 +50,6 @@ public class BpdfManager {
         catch (IllegalAccessException e) {
             LOG.severe(e.getMessage());
         }
-
         m_gui = new BPDFGui();
         Thread t = new Thread(m_gui, "GUI");
         t.start();

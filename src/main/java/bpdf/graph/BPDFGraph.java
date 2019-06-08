@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,54 +20,27 @@ import java.util.Set;
  * finds and holds the graph cycles (minor bug in that). Finally,
  * produces the scheduling constraints and sets up the slotted schedule
  * dynamic scheduler.
- * @author Vagelis Bebelis
  */
 public class BPDFGraph {
-    /** List of actors */
-    private List<BPDFActor> m_actorList = new ArrayList<BPDFActor>();
-    /** List of edges */
-    private List<BPDFEdge> m_edgeList = new ArrayList<BPDFEdge>();
-    /** List of modifiers */
-    private Map<String, BPDFActor> m_modifiers = new HashMap<String, BPDFActor>();
-    /** Repetition Vector */
-    private Map<String, Expression> m_repVector;
-
     /** Empty Constructor */
     public BPDFGraph() { }
 
-    /**
-     * Constructor using parser with filepath.
-     * @param path The path to graph file.
-     */
-    public BPDFGraph(String path) {
-        this(new File(path));
+    /** Copy Constructor */
+    public BPDFGraph(BPDFGraph g) {
+        addActors(g.getActors());
+        addEdges(g.getEdges());
     }
 
     /**
      * Constructor using parser with file.
      * * @param file The graph file.
      */
-    public BPDFGraph(File file) {
-        DslParser p = new DslParser(file);
+    public BPDFGraph(DslParser p) {
+        // this(p.getActors(), (p.getEdges()));
         addActors(p.getActors());
         addEdges(p.getEdges());
-    }
-
-    /**
-     *  Constructor initializing the actor list
-     * @param actors The list of actors
-     */
-    public BPDFGraph(List<BPDFActor> actors) {
-        m_actorList.addAll(actors);
-    }
-
-    /**
-     * Constructor copying a graph from another graph
-     * @param g The graph to copy from
-     */
-    public BPDFGraph(BPDFGraph g) {
-        addActors(g.getActors());
-        addEdges(g.getEdges());
+        analyse();
+        reportStatus();
     }
 
     /**
@@ -77,13 +51,9 @@ public class BPDFGraph {
      */
     public void addEdge(BPDFEdge edge) {
         if (!m_actorList.contains(edge.getProducer())) {
-            throw new RuntimeException("Actor (producer)"
-                                       + edge.getProducer().getName()
-                                       + " is missing");
+            throw new RuntimeException("Producer "+ edge.getProducer().getName() + " is missing");
         } else if (!m_actorList.contains(edge.getConsumer())) {
-            throw new RuntimeException("Actor (consumer)"
-                                       + edge.getConsumer().getName()
-                                       + " is missing");
+            throw new RuntimeException("Consumer "+ edge.getConsumer().getName() + " is missing");
         } else {
             m_edgeList.add(edge);
         }
@@ -112,10 +82,9 @@ public class BPDFGraph {
             List<String> tempParamList = actor.getBoolParam();
             for (String param : tempParamList) {
                 if (m_modifiers.containsKey(param)) {
-                    throw new RuntimeException("Booleam Parameter " + param
-                                               + " has 2 modifiers: "
-                                               + actor.getName() + " and "
-                                               + m_modifiers.get(param).getName());
+                    throw new RuntimeException("Booleam Parameter " + param +
+                                               " has 2 modifiers: "+ actor.getName() + " and " +
+                                               m_modifiers.get(param).getName());
                 }
                 m_modifiers.put(param, actor);
             }
@@ -138,10 +107,6 @@ public class BPDFGraph {
             actor.setParamValues(map);
         }
     }
-
-/******************************************************************************
- ** GETTERS
- ******************************************************************************/
 
     /**
      * Returns the list of edges
@@ -245,9 +210,9 @@ public class BPDFGraph {
     }
 
     /**
-     * Returns all the actors that a given actor is giving data to
-     * @param The given actor
-     * @return A list of all the actors getting data from the given actor
+     *  Returns all the actors that a given actor is giving data to
+     *  @param a    The given actor
+     *  @return     A list of all the actors getting data from the given actor
      */
     public List<BPDFActor> getSuccessors(BPDFActor a) {
         List<BPDFActor> successors = new ArrayList<BPDFActor>();
@@ -260,12 +225,48 @@ public class BPDFGraph {
     }
 
     /**
-     * Consistency Analysis.
-     * Solves the graph balance equations.
-     * Calculates the repetition vector.
-     * @return True if the graph is consistent
+     *  Runs all graphs analyses and updates the graph status
+     */
+    public void analyse() {
+        m_isConsistent = checkConsistency();
+        m_isLive = checkLiveness();
+        m_isSafe = checkPeriodSafety();
+    }
+
+    /**
+     *  @return True if the graph is consistent
      */
     public boolean isConsistent() {
+        return m_isConsistent;
+    }
+
+    /**
+     *  @return True if the graph is period safe
+     */
+    public boolean isSafe() {
+        return m_isSafe;
+    }
+
+    /**
+     *  @return True if the graph is live
+     */
+    public boolean isLive() {
+        return m_isLive;
+    }
+
+    public void reportStatus() {
+        String message = "Graph is%s %s";
+        LOG.info(String.format(message, m_isConsistent ? "" : " not", "consistent"));
+        LOG.info(String.format(message, m_isLive ? "" : " not", "live"));
+        LOG.info(String.format(message, m_isSafe ? "" : " not", "safe"));
+    }
+
+    /**
+     *  Consistency Analysis. Solves the balance equations and
+     *  calculates the repetition vector.
+     *  @return True if the graph is consistent
+     */
+    private boolean checkConsistency() {
         ArrayList<Equation> balanceEquations = new ArrayList<Equation>();
         for (BPDFEdge edge : m_edgeList) {
             balanceEquations.add(new Equation(edge.getRateIn(),
@@ -291,7 +292,7 @@ public class BPDFGraph {
      * Clustering technique not supported yet.
      * @return True, if the graph is live.
      */
-    public boolean isLive() {
+    private boolean checkLiveness() {
         CycleDetector cd = new CycleDetector(this);
         List<BPDFGraph> cycles = new ArrayList<BPDFGraph>();
 
@@ -317,8 +318,8 @@ public class BPDFGraph {
      * all the boolean parameters are period safe.
      * @return True, if all periods are safe
      */
-    public boolean isSafe() {
-        if (!isConsistent()) {
+    private boolean checkPeriodSafety() {
+        if (!m_isConsistent) {
             return false;
         }
 
@@ -344,22 +345,6 @@ public class BPDFGraph {
                 }
                 actor.setReadingPeriod(param, res.getProduct());
             }
-        }
-        return true;
-    }
-
-    /**
-     * Runs all static analyses on the graph.
-     * Checks for consistency, boundedness and liveness.
-     * @return True, if all checks return true.
-     */
-    public boolean verifyGraph() {
-        if (!isConsistent()) {
-            return false;
-        } else if (!isLive()) {
-            return false;
-        } else if (!isSafe()) {
-            return false;
         }
         return true;
     }
@@ -457,4 +442,20 @@ public class BPDFGraph {
         }
         return false;
     }
+
+    private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    /** List of actors */
+    private List<BPDFActor> m_actorList = new ArrayList<BPDFActor>();
+    /** List of edges */
+    private List<BPDFEdge> m_edgeList = new ArrayList<BPDFEdge>();
+    /** List of modifiers */
+    private Map<String, BPDFActor> m_modifiers = new HashMap<String, BPDFActor>();
+    /** Repetition Vector */
+    private Map<String, Expression> m_repVector;
+    /** Graph is Safe */
+    private boolean m_isSafe = false;
+    /** Graph is Live */
+    private boolean m_isLive = false;
+    /** Graph is Consistent */
+    private boolean m_isConsistent = false;
 }

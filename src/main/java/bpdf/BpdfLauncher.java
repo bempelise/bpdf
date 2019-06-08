@@ -26,15 +26,15 @@ public class BpdfLauncher {
         Options options = new Options();
         Option help = new Option("h", "help", false, "help");
         Option gui = new Option("g", "gui", false, "Enable GUI");
-        Option loadgraph = Option.builder("l").hasArg()
-                                              .argName("filename")
-                                              .longOpt("load")
-                                              .desc("load graph from file")
-                                              .build();
+        Option load_graph = Option.builder("l").hasArg().argName("BPDF graph file").longOpt("load")
+                                               .desc("load graph from file").build();
+        Option config_graph = Option.builder("c").hasArg().argName("config file").longOpt("cfg")
+                                                 .desc("configure graph with file").build();
         // Add options
         options.addOption(help);
         options.addOption(gui);
-        options.addOption(loadgraph);
+        options.addOption(load_graph);
+        options.addOption(config_graph);
 
         // Parse options
         CommandLineParser parser = new DefaultParser();
@@ -52,6 +52,10 @@ public class BpdfLauncher {
 
             if (cmd.hasOption("l")) {
                 status.path = cmd.getOptionValue("l");
+            }
+
+            if (cmd.hasOption("c")) {
+                status.config = cmd.getOptionValue("c");
             }
         } catch (ParseException exc) {
             LOG.warning("Invalid arguments: " + exc);

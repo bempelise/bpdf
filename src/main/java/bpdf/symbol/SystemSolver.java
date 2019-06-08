@@ -78,7 +78,6 @@ public class SystemSolver {
         checkSolution(sol);
         if (m_isConsistent) {
             normalSolution();
-            printSolution();
         }
     }
 
