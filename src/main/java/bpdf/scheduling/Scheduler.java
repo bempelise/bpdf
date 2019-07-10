@@ -20,7 +20,12 @@ import java.util.Set;
  * actors along with their repetition vector, values for the Integer
  * parameters for the current iteration and produced a slotted parallel
  * ASAP schedule of a single iteration.
- * @author Vagelis Bebelis
+ *
+ * Schedule flavours:
+ * runSlottedVanilla
+ * runSlottedOptimized
+ * runSlottedBuffer
+ * runNonSlottedVanilla
  */
 public class Scheduler {
     /** Map of lists of boolean values. */
