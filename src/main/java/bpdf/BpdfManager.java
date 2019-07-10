@@ -1,8 +1,8 @@
 package bpdf;
 
 import bpdf.graph.BPDFGraph;
-import bpdf.gui.BPDFGui;
 import bpdf.graph.DslParser;
+import bpdf.gui.BPDFGui;
 import java.io.File;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
@@ -13,24 +13,30 @@ public class BpdfManager {
 
     public BpdfManager(BpdfStatus status) {
         m_status = status;
-        loadGraph();
         if (m_status.gui) {
             launchgui();
         }
+        loadGraph(m_status.path);
     }
 
-    private void loadGraph() {
+
+    private String loadGraph(String path) {
+        m_status.path = path;
+        String message;
         if (m_status.path != null) {
-            m_file = new File(m_status.path);
-            if (m_file.isFile()) {
+            File file = new File(m_status.path);
+            if (file.isFile()) {
                 m_status.isSet = true;
-                m_graph = new BPDFGraph(new DslParser(m_file));
+                m_graph = new BPDFGraph(new DslParser(file));
             } else {
-                LOG.warning("File " + m_status.path + " not found");
+                message = "File " + m_status.path + " not found";
+                LOG.warning(message);
             }
         } else {
-            LOG.warning("File path not set");
+            message = "File path not set"
+            LOG.warning(message);
         }
+        return message;
     }
 
     private void launchgui() {
@@ -50,12 +56,11 @@ public class BpdfManager {
         catch (IllegalAccessException e) {
             LOG.severe(e.getMessage());
         }
-        m_gui = new BPDFGui();
+        m_gui = new BPDFGui(this);
         Thread t = new Thread(m_gui, "GUI");
         t.start();
     }
 
-    private File m_file;
     private BPDFGraph m_graph;
     private BPDFGui m_gui;
     private BpdfStatus m_status = new BpdfStatus();

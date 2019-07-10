@@ -8,6 +8,7 @@ import bpdf.graph.BPDFGraph;
 import bpdf.graph.BPDFEdge;
 import bpdf.graph.BPDFActor;
 import bpdf.graph.FileHandler;
+import bpdf.BpdfManager;
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
@@ -41,124 +42,80 @@ import javax.swing.JSplitPane;
 
 public class BPDFGui extends JFrame implements ActionListener, Runnable {
     private static final long serialVersionUID = 8543000000000001001L;
-    // menu
-    private JMenu fileMenu;
-    private JMenu analysisMenu;
-    private JMenuBar menuBar;
     // main window
-    private JSplitPane splitPane;
-    private JPanel leftPanel;
-    private JPanel rightPanel;
+    private JPanel graphPanel;
     private IntegerOptionsPanel intPanel;
     private BooleanOptionsPanel boolPanel;
     private SchedulerOptionsPanel schedPanel;
-    private JButton run = new JButton("Run!");
-    // settings
-    private Dimension minimumSize = new Dimension(10, 10);
-    private int sched = 0;
+    private GraphStatusPanel graphStatusPanel;
     private File currentFile;
+    private BpdfManager m_manager;
 
-    // content
-    private BPDFGraph funcGraph = new BPDFGraph();
     private mxGraph visGraph = new mxGraph();
     // private Map<String, Integer> intMap = new HashMap<String, Integer>();
     private Map<String, String> boolMap = new HashMap<String, String>();
     private Scheduler scheduler = new SlottedScheduler();
 
-    public BPDFGui() {
+    public BPDFGui(BpdfManager manager) {
         super("Boolean Parametric Data Flow");
-    }
-
-    public BPDFGui(File file) {
-        super("Boolean Parametric Data Flow");
-        makeGraph(file);
+        m_manager = manager;
     }
 
     public void run() {
+        Dimension minimumSize = new Dimension(10, 10);
+        graphPanel = new JPanel();
+        graphPanel.setMinimumSize(minimumSize);
+
+        JPanel options = new JPanel();
+        options.setMinimumSize(minimumSize);
+        options.setLayout(new BoxLayout(options, BoxLayout.Y_AXIS));
+
         intPanel = new IntegerOptionsPanel(this);
         boolPanel = new BooleanOptionsPanel(this);
         schedPanel = new SchedulerOptionsPanel(this);
-
-
-        // Run Button
-        run.setActionCommand("run");
+        graphStatusPanel = new GraphStatusPanel();
+        JButton analyse = new JButton("Analyse");
+        analyse.setActionCommand("Analyse");
+        analyse.addActionListener(this);
+        JButton run = new JButton("Run");
+        run.setActionCommand("Run");
         run.addActionListener(this);
 
-        // Left panel
-        leftPanel = new JPanel();
-        leftPanel.setMinimumSize(minimumSize);
+        options.add(intPanel);
+        options.add(boolPanel);
+        options.add(schedPanel);
+        options.add(graphStatusPanel);
+        options.add(analyse);
+        options.add(run);
 
-        // Right panel
-        rightPanel = new JPanel();
-        rightPanel.setMinimumSize(minimumSize);
-        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
-        rightPanel.add(intPanel);
-        rightPanel.add(boolPanel);
-        rightPanel.add(schedPanel);
-        rightPanel.add(run);
-
-        // Horizontal Splitbar
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
-        splitPane.setResizeWeight(0.8);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, options, graphPanel);
+        splitPane.setResizeWeight(0.1);
         splitPane.setOneTouchExpandable(true);
         splitPane.setContinuousLayout(true);
         add(splitPane, BorderLayout.CENTER);
 
-        // File menu
-        fileMenu = new JMenu("File");
-        fileMenu.add(makeMenuItem("Open"));
-        fileMenu.add(makeMenuItem("Save"));
-        fileMenu.add(makeMenuItem("Quit"));
-
-        // Analysis menu
-        analysisMenu = new JMenu("Analysis");
-        analysisMenu.add(makeMenuItem("Consistency"));
-        analysisMenu.add(makeMenuItem("Boundedness"));
-        analysisMenu.add(makeMenuItem("Liveness"));
-
-        // Menu bar
-        menuBar = new JMenuBar();
-        menuBar.add(fileMenu);
-        menuBar.add(analysisMenu);
+        MenuBar menuBar = new MenuBar(this);
         setJMenuBar(menuBar);
 
         // Make initialize and visible
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(600, 600);
+        setSize(800, 600);
         setVisible(true);
+        visualiseGraph();
     }
 
-    private JMenuItem makeMenuItem(String name) {
-        JMenuItem m = new JMenuItem(name);
-        m.addActionListener(this);
-        return m;
-    }
+    private void visualiseGraph() {
+        if (m_graph == null) {
+            return;
+        }
 
-    private JPanel makeBoolValuePanel(JPanel panel) {
-        JButton gen = new JButton("Generate");
-        gen.setActionCommand("generate");
-        gen.addActionListener(this);
-        JButton save = new JButton("Save");
-        save.setActionCommand("saveBool");
-        save.addActionListener(this);
-        JButton load = new JButton("Load");
-        load.setActionCommand("loadBool");
-        load.addActionListener(this);
-        panel.add(gen);
-        panel.add(save);
-        panel.add(load);
-        return panel;
-    }
-
-    private void makeGraph(File file) {
         visGraph = new mxGraph();
-        funcGraph = new BPDFGraph(new DslParser(file));
 
         Object parent = visGraph.getDefaultParent();
         visGraph.getModel().beginUpdate();
         try {
             List<mxCell> nodes = new ArrayList<mxCell>();
-            List<BPDFActor> actorList = funcGraph.getActors();
+            List<BPDFActor> actorList = m_graph.getActors();
             for (BPDFActor actor : actorList) {
                 Object v = visGraph.insertVertex(parent,
                                                  actor.getName(),
@@ -167,7 +124,7 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
                 nodes.add((mxCell) v);
             }
 
-            List<BPDFEdge> edgeList = funcGraph.getEdges();
+            List<BPDFEdge> edgeList = m_graph.getEdges();
             for (BPDFEdge edge : edgeList) {
                 Object v1 = findNode(edge.getProducer().getName(), nodes);
                 Object v2 = findNode(edge.getConsumer().getName(), nodes);
@@ -181,13 +138,11 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
         }
 
         mxGraphComponent graphComponent = new mxGraphComponent(visGraph);
-        leftPanel.removeAll();
-        leftPanel.add(graphComponent);
+        graphPanel.removeAll();
+        graphPanel.add(graphComponent);
 
-        intPanel.refresh(funcGraph.getIntParamSet());
-        boolPanel.refresh(funcGraph.getBoolParamSet());
-        // makeIntPanel(intPanel, funcGraph.getIntParamSet());
-        // makeBoolPanel(boolPanel, funcGraph.getBoolParamSet());
+        intPanel.refresh(m_graph.getIntParamSet());
+        boolPanel.refresh(m_graph.getBoolParamSet());
 
         this.repaint();
         this.revalidate();
@@ -206,89 +161,28 @@ public class BPDFGui extends JFrame implements ActionListener, Runnable {
 
 
 /********************************************************************
- ** GRAPH ACTIONS
- ********************************************************************/
-
-    private boolean consCheck(boolean msg) {
-        if (!funcGraph.isConsistent()) {
-            JOptionPane.showMessageDialog(((JFrame) this),
-                                          "Graph is inconsistent.",
-                                          "Consistency Analysis",
-                                          JOptionPane.WARNING_MESSAGE);
-            return false;
-        } else if (msg) {
-            JOptionPane.showMessageDialog(((JFrame) this),
-                                          "Graph is consistent.",
-                                          "Consistency analysis",
-                                          JOptionPane.INFORMATION_MESSAGE);
-        }
-        return true;
-    }
-
-    private boolean boundCheck(boolean msg) {
-        if (!funcGraph.isSafe()) {
-            JOptionPane.showMessageDialog(((JFrame) this),
-                                          "Graph is not safe.",
-                                          "Boundedness Analysis",
-                                          JOptionPane.WARNING_MESSAGE);
-            return false;
-        } else if (msg) {
-            JOptionPane.showMessageDialog(((JFrame) this),
-                                          "Graph is safe.",
-                                          "Boundedness analysis",
-                                          JOptionPane.INFORMATION_MESSAGE);
-        }
-        return true;
-    }
-
-    private boolean liveCheck(boolean msg) {
-        if (!funcGraph.isLive()) {
-            JOptionPane.showMessageDialog(((JFrame) this),
-                                          "Graph is not live.",
-                                          "Liveness Analysis",
-                                          JOptionPane.WARNING_MESSAGE);
-            return false;
-        } else if (msg) {
-            JOptionPane.showMessageDialog(((JFrame) this),
-                                          "Graph is live.",
-                                          "Liveness analysis",
-                                          JOptionPane.INFORMATION_MESSAGE);
-        }
-        return true;
-    }
-
-
-/********************************************************************
  ** ACTION LISTENER
  ********************************************************************/
 
     public void actionPerformed(ActionEvent e) {
         boolean status = false;
         String command = e.getActionCommand();
-        // Menu Bar "File"
         if (command.equals("Open")) {
             currentFile = openFile();
             if (currentFile != null) {
-                makeGraph(currentFile);
+                m_graph = new BPDFGraph(new DslParser(currentFile));
+                visualiseGraph();
             }
         } else if (command.equals("Save")) {
             saveFile();
         } else if (command.equals("Quit")) {
             dispose();
-        // Menu Bar "Analysis"
-        } else if (command.equals("Consistency")) {
-            if (currentFile != null) {
-                consCheck(true);
+        } else if (command.equals("Analyse")) {
+            if (m_graph != null) {
+                m_graph.analyse();
             }
-        } else if (command.equals("Boundedness")) {
-            if (currentFile != null) {
-                boundCheck(true);
-            }
-        } else if (command.equals("Liveness")) {
-            if (currentFile != null) {
-                liveCheck(true);
-            }
-        } else if (command.equals("run")) {
+            graphStatusPanel.refresh(m_graph);
+        } else if (command.equals("Run")) {
             if (currentFile != null) {
                 BPDFGraph runGraph = new BPDFGraph(new DslParser(currentFile));
                 Map<String, Integer> intMap = intPanel.getParams();

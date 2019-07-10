@@ -5,8 +5,8 @@ apply plugin: 'application'
 // applicationDefaultJvmArgs = ["-noverify"]
 mainClassName = 'bpdf.BpdfLauncher'
 buildDir = './build'
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 version = '0.1.0'
 
 /*
@@ -18,15 +18,14 @@ version = '0.1.0'
  * references to non-existent methods can get included.
  * Comment out if compilation does not work in your computer.
  */
-def bootClasspathStr = "$System.env.JAVA_HOME/jre/lib/rt.jar"
-project.tasks.withType(AbstractCompile,
-    {
-    // options is always there but not defined on AbstractCompile
-    // so going to hit it anyway
-    AbstractCompile ac ->
-    ac.options.bootClasspath = bootClasspathStr
-    }
-)
+// def bootClasspathStr = "$System.env.JAVA_HOME/jre/lib/rt.jar"
+// project.tasks.withType(AbstractCompile,
+//     {
+//     // options is always there but not defined on AbstractCompile
+//     // so going to hit it anyway
+//     AbstractCompile ac -> ac.options.bootClasspath = bootClasspathStr
+//     }
+// )
 
 // Compile Groovy BEFORE Java
 sourceSets {
